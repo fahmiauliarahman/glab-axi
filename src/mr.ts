@@ -1,21 +1,24 @@
 import { encode } from "@toon-format/toon";
 import { AxiError } from "axi-sdk-js";
 import type { RepoContext } from "./context.js";
-import { glabJson } from "./glab.js";
+import { glabExec, glabJson } from "./glab.js";
 import { renderHelp, renderOutput } from "./toon.js";
 
 type MergeRequest = Record<string, unknown>;
 
 export const MR_HELP = `usage: glab-axi mr <subcommand> [flags]
-subcommands[2]:
-  list, view <number>
+subcommands[3]:
+  list, view <number>, create
 flags{list}:
   --output json
 flags{view}:
   --comments, --output json
+flags{create}:
+  -t <text>, -m <milestone>, --label <name>, --web, --recover, --remove-source-branch
 examples:
   glab-axi mr list
   glab-axi mr view 42
+  glab-axi mr create --title "Ship it"
 `;
 
 export const MR_VIEW_HELP = `usage: glab-axi mr view <number> [flags]
@@ -27,6 +30,13 @@ flags{view}:
 examples:
   glab-axi mr view 42
   glab-axi mr view 42 --comments
+`;
+
+export const MR_CREATE_HELP = `usage: glab-axi mr create [flags]
+Create a merge request in the current project.
+
+examples:
+  glab-axi mr create --title "Ship it"
 `;
 
 export async function mrCommand(
@@ -56,9 +66,22 @@ export async function mrCommand(
     ]);
   }
 
+  if (subcommand === "create") {
+    if (wantsHelp) {
+      return MR_CREATE_HELP;
+    }
+
+    const output = await glabExec(["mr", "create", ...args.slice(1)], ctx);
+
+    return renderOutput([
+      output.trim(),
+      renderHelp(["Use `glab-axi mr create --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "list") {
     throw new AxiError("Unknown mr subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi mr list` or `glab-axi mr view <number>`",
+      "Run `glab-axi mr list`, `glab-axi mr view <number>`, or `glab-axi mr create`",
     ]);
   }
 

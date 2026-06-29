@@ -4,11 +4,16 @@ const { glabJson } = vi.hoisted(() => ({
   glabJson: vi.fn(),
 }));
 
-vi.mock("../src/glab.js", () => ({
-  glabJson,
+const { glabExec } = vi.hoisted(() => ({
+  glabExec: vi.fn(),
 }));
 
-import { mrCommand, MR_HELP, MR_VIEW_HELP } from "../src/mr.js";
+vi.mock("../src/glab.js", () => ({
+  glabJson,
+  glabExec,
+}));
+
+import { mrCommand, MR_CREATE_HELP, MR_HELP, MR_VIEW_HELP } from "../src/mr.js";
 
 describe("mrCommand", () => {
   beforeEach(() => {
@@ -21,6 +26,24 @@ describe("mrCommand", () => {
 
   it("returns help by default", async () => {
     await expect(mrCommand([])).resolves.toBe(MR_HELP);
+  });
+
+  it("renders merge request create passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Created merge request !7");
+
+    const output = await mrCommand(["create", "--title", "Ship it"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Created merge request !7");
+    expect(output).toContain("Use `glab-axi mr create --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["mr", "create", "--title", "Ship it"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
   });
 
   it("renders merge request list output", async () => {
@@ -61,6 +84,10 @@ describe("mrCommand", () => {
 
   it("returns merge request view help when asked", async () => {
     await expect(mrCommand(["view", "--help"])).resolves.toBe(MR_VIEW_HELP);
+  });
+
+  it("returns merge request create help when asked", async () => {
+    await expect(mrCommand(["create", "--help"])).resolves.toBe(MR_CREATE_HELP);
   });
 
   it("rejects unknown subcommands", async () => {
