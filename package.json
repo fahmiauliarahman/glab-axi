@@ -22,6 +22,7 @@
   "files": [
     "dist",
     "skills/glab-axi",
+    "LICENSE",
     "README.md"
   ],
   "publishConfig": {
