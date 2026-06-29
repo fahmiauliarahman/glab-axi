@@ -21,7 +21,9 @@ import {
   ISSUE_HELP,
   ISSUE_NOTE_HELP,
   ISSUE_REOPEN_HELP,
+  ISSUE_SUBSCRIBE_HELP,
   ISSUE_UPDATE_HELP,
+  ISSUE_UNSUBSCRIBE_HELP,
   ISSUE_VIEW_HELP,
 } from "../src/issue.js";
 
@@ -248,6 +250,18 @@ describe("issueCommand", () => {
     );
   });
 
+  it("returns issue subscribe help when asked", async () => {
+    await expect(issueCommand(["subscribe", "--help"])).resolves.toBe(
+      ISSUE_SUBSCRIBE_HELP,
+    );
+  });
+
+  it("returns issue unsubscribe help when asked", async () => {
+    await expect(issueCommand(["unsubscribe", "--help"])).resolves.toBe(
+      ISSUE_UNSUBSCRIBE_HELP,
+    );
+  });
+
   it("treats issue open as reopen", async () => {
     glabExec.mockResolvedValueOnce("Reopened issue #42");
 
@@ -262,6 +276,42 @@ describe("issueCommand", () => {
     expect(output).toContain("Use `glab-axi issue reopen --help`");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "reopen", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("renders issue subscribe passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Subscribed to issue #42");
+
+    const output = await issueCommand(["subscribe", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Subscribed to issue #42");
+    expect(output).toContain("Use `glab-axi issue subscribe --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "subscribe", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("renders issue unsubscribe passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Unsubscribed from issue #42");
+
+    const output = await issueCommand(["unsubscribe", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Unsubscribed from issue #42");
+    expect(output).toContain("Use `glab-axi issue unsubscribe --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "unsubscribe", "42"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
