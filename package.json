@@ -21,6 +21,7 @@
   },
   "files": [
     "dist",
+    "skills/glab-axi",
     "README.md"
   ],
   "publishConfig": {
@@ -28,6 +29,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:skill": "tsx scripts/build-skill.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "tsx bin/glab-axi.ts",
