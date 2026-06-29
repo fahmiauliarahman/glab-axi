@@ -15,6 +15,7 @@ vi.mock("../src/glab.js", () => ({
 
 import {
   ISSUE_CLOSE_HELP,
+  ISSUE_DELETE_HELP,
   issueCommand,
   ISSUE_CREATE_HELP,
   ISSUE_HELP,
@@ -147,6 +148,24 @@ describe("issueCommand", () => {
     );
   });
 
+  it("renders issue delete passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Deleted issue #42");
+
+    const output = await issueCommand(["delete", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Deleted issue #42");
+    expect(output).toContain("Use `glab-axi issue delete --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "delete", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns issue view help when asked", async () => {
     await expect(issueCommand(["view", "--help"])).resolves.toBe(
       ISSUE_VIEW_HELP,
@@ -174,6 +193,12 @@ describe("issueCommand", () => {
   it("returns issue close help when asked", async () => {
     await expect(issueCommand(["close", "--help"])).resolves.toBe(
       ISSUE_CLOSE_HELP,
+    );
+  });
+
+  it("returns issue delete help when asked", async () => {
+    await expect(issueCommand(["delete", "--help"])).resolves.toBe(
+      ISSUE_DELETE_HELP,
     );
   });
 
