@@ -36,8 +36,10 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[8]:");
-    expect(TOP_HELP).toContain("ci, issue, label, mr, repo, search, setup");
+    expect(TOP_HELP).toContain("commands[9]:");
+    expect(TOP_HELP).toContain(
+      "ci, issue, label, mr, release, repo, search, setup",
+    );
     expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
@@ -45,6 +47,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi mr list");
+    expect(TOP_HELP).toContain("glab-axi release list");
     expect(TOP_HELP).toContain("glab-axi search repos --search");
     expect(TOP_HELP).toContain("glab-axi setup hooks");
     expect(TOP_HELP).toContain("-R/--repo <OWNER/NAME>");
@@ -99,12 +102,16 @@ describe("main CLI", () => {
     expect(options.commands.issue).toBeTypeOf("function");
     expect(options.commands.label).toBeTypeOf("function");
     expect(options.commands.mr).toBeTypeOf("function");
+    expect(options.commands.release).toBeTypeOf("function");
     expect(options.commands.repo).toBeTypeOf("function");
     expect(options.commands.search).toBeTypeOf("function");
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci list");
     expect(options.getCommandHelp("issue")).toContain("glab-axi issue list");
     expect(options.getCommandHelp("label")).toContain("glab-axi label list");
     expect(options.getCommandHelp("mr")).toContain("glab-axi mr list");
+    expect(options.getCommandHelp("release")).toContain(
+      "glab-axi release list",
+    );
     expect(options.getCommandHelp("repo")).toContain("glab-axi repo view");
     expect(options.getCommandHelp("search")).toContain("glab-axi search repos");
   });

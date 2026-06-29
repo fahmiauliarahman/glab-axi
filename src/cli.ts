@@ -9,6 +9,7 @@ import { issueCommand, ISSUE_HELP } from "./issue.js";
 import { labelCommand, LABEL_HELP } from "./label.js";
 import { mrCommand, MR_HELP } from "./mr.js";
 import { repoCommand, REPO_HELP } from "./repo.js";
+import { releaseCommand, RELEASE_HELP } from "./release.js";
 import { searchCommand, SEARCH_HELP } from "./search.js";
 import { setupCommand, SETUP_HELP } from "./setup.js";
 
@@ -25,8 +26,8 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[8]:
-  (none)=dashboard, ci, issue, label, mr, repo, search, setup
+commands[9]:
+  (none)=dashboard, ci, issue, label, mr, release, repo, search, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form, --help, -v/-V/--version
 examples:
@@ -35,6 +36,7 @@ examples:
   glab-axi issue list
   glab-axi label list
   glab-axi mr list
+  glab-axi release list
   glab-axi search repos --search "cli tool"
   glab-axi -R group/project
   glab-axi repo view
@@ -46,6 +48,7 @@ const COMMAND_HELP: Record<string, string> = {
   issue: ISSUE_HELP,
   label: LABEL_HELP,
   mr: MR_HELP,
+  release: RELEASE_HELP,
   repo: REPO_HELP,
   search: SEARCH_HELP,
   setup: SETUP_HELP,
@@ -74,6 +77,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
       issue: withRepoContext("issue", issueCommand),
       label: withRepoContext("label", labelCommand),
       mr: withRepoContext("mr", mrCommand),
+      release: withRepoContext("release", releaseCommand),
       repo: withRepoContext("repo", repoCommand),
       search: withRepoContext("search", searchCommand),
       setup: setupCommand,
