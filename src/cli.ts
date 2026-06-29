@@ -53,6 +53,7 @@ examples:
   glab-axi mr list
   glab-axi mr view 42
   glab-axi release list
+  glab-axi repo search --search "cli tool"
   glab-axi search repos --search "cli tool"
   glab-axi update --check
   glab-axi update

@@ -12,6 +12,7 @@ import {
   repoCommand,
   REPO_HELP,
   REPO_LIST_HELP,
+  REPO_SEARCH_HELP,
   REPO_VIEW_HELP,
 } from "../src/repo.js";
 
@@ -35,6 +36,15 @@ describe("repoCommand", () => {
   it("returns view help on demand", async () => {
     await expect(repoCommand(["view", "--help"])).resolves.toBe(REPO_VIEW_HELP);
   });
+
+  it.each(["search", "find", "lookup"])(
+    "returns %s help on demand",
+    async (subcommand) => {
+      await expect(repoCommand([subcommand, "--help"])).resolves.toBe(
+        REPO_SEARCH_HELP,
+      );
+    },
+  );
 
   it("renders repo view output", async () => {
     glabJson.mockResolvedValueOnce({
@@ -93,4 +103,31 @@ describe("repoCommand", () => {
       "Unknown repo subcommand",
     );
   });
+
+  it.each(["search", "find", "lookup"])(
+    "routes %s to repo search",
+    async (subcommand) => {
+      glabJson.mockResolvedValueOnce([
+        {
+          path_with_namespace: "group/project",
+          web_url: "https://gitlab.com/group/project",
+          description: "Project summary",
+        },
+      ]);
+
+      const output = await repoCommand([subcommand, "--search", "cli tool"], {
+        owner: "group",
+        name: "project",
+        nwo: "group/project",
+        source: "flag",
+      });
+
+      expect(output).toContain("repos:");
+      expect(output).toContain("group/project");
+      expect(glabJson).toHaveBeenCalledWith(
+        ["repo", "search", "--output", "json", "--search", "cli tool"],
+        expect.objectContaining({ nwo: "group/project" }),
+      );
+    },
+  );
 });
