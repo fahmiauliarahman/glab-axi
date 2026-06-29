@@ -6,6 +6,7 @@ import { ciCommand, CI_HELP } from "./ci.js";
 import { resolveRepo, type RepoContext } from "./context.js";
 import { homeCommand } from "./home.js";
 import { issueCommand, ISSUE_HELP } from "./issue.js";
+import { labelCommand, LABEL_HELP } from "./label.js";
 import { mrCommand, MR_HELP } from "./mr.js";
 import { repoCommand, REPO_HELP } from "./repo.js";
 import { setupCommand, SETUP_HELP } from "./setup.js";
@@ -23,14 +24,15 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[6]:
-  (none)=dashboard, ci, issue, mr, repo, setup
+commands[7]:
+  (none)=dashboard, ci, issue, label, mr, repo, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form, --help, -v/-V/--version
 examples:
   glab-axi
   glab-axi ci list
   glab-axi issue list
+  glab-axi label list
   glab-axi mr list
   glab-axi -R group/project
   glab-axi repo view
@@ -40,6 +42,7 @@ examples:
 const COMMAND_HELP: Record<string, string> = {
   ci: CI_HELP,
   issue: ISSUE_HELP,
+  label: LABEL_HELP,
   mr: MR_HELP,
   repo: REPO_HELP,
   setup: SETUP_HELP,
@@ -66,6 +69,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
     commands: {
       ci: withRepoContext("ci", ciCommand),
       issue: withRepoContext("issue", issueCommand),
+      label: withRepoContext("label", labelCommand),
       mr: withRepoContext("mr", mrCommand),
       repo: withRepoContext("repo", repoCommand),
       setup: setupCommand,
