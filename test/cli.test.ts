@@ -36,9 +36,9 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[12]:");
+    expect(TOP_HELP).toContain("commands[13]:");
     expect(TOP_HELP).toContain(
-      "(none)=dashboard, api, ci, pipeline, issue, label, project, mr,",
+      "(none)=dashboard, api, ci, pipeline, workflow, issue, label, project,",
     );
     expect(TOP_HELP).toContain("release, repo, search, setup");
     expect(TOP_HELP).toContain("flags[4]:");
@@ -50,6 +50,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi ci run");
     expect(TOP_HELP).toContain("glab-axi ci trace 224356863");
     expect(TOP_HELP).toContain("glab-axi pipeline run");
+    expect(TOP_HELP).toContain("glab-axi workflow list");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi issue view 42");
     expect(TOP_HELP).toContain("glab-axi issue reopen 42");
@@ -113,6 +114,7 @@ describe("main CLI", () => {
     expect(options.commands.api).toBeTypeOf("function");
     expect(options.commands.ci).toBeTypeOf("function");
     expect(options.commands.pipeline).toBeTypeOf("function");
+    expect(options.commands.workflow).toBeTypeOf("function");
     expect(options.commands.issue).toBeTypeOf("function");
     expect(options.commands.label).toBeTypeOf("function");
     expect(options.commands.project).toBeTypeOf("function");
@@ -126,6 +128,9 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci trace");
     expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci list");
     expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci run");
+    expect(options.getCommandHelp("workflow")).toBe(
+      options.getCommandHelp("ci"),
+    );
     expect(options.getCommandHelp("issue")).toContain("glab-axi issue list");
     expect(options.getCommandHelp("issue")).toContain(
       "glab-axi issue reopen 42",

@@ -27,16 +27,16 @@ Use glab-axi whenever a task touches GitLab: listing, filing, or editing issues;
 1. Run `npx -y glab-axi` with no arguments for a dashboard of the current repo - open issues, open merge requests, and suggested next commands.
 2. Drill in command-first: `issue list`, `issue view <number>`, `mr view <number>`, `ci list`, and so on.
 3. Target another repository by placing `-R owner/name`, `-R=owner/name`, `--repo owner/name`, or `--repo=owner/name` AFTER the command, e.g. `npx -y glab-axi issue list --repo=owner/name` - the flag is not accepted before the command.
-4. Debug CI with `ci list`, then `ci get` or `ci status` for pipeline details.
+4. Debug CI with `ci list`, then `ci get`, `ci status`, or `ci trace` for pipeline and job logs.
 5. Use `glab-axi setup hooks` to install ambient context when you want repo state at session start.
 6. Every response ends with contextual next-step hints under `help:` - follow them.
 
 ## Commands
 
 ```
-commands[12]:
-  (none)=dashboard, api, ci, pipeline, issue, label, project, mr,
-  release, repo, search, setup
+commands[13]:
+  (none)=dashboard, api, ci, pipeline, workflow, issue, label, project,
+  mr, release, repo, search, setup
 ```
 
 Installed copies also inherit the SDK built-in `update` command.
