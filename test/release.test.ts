@@ -4,11 +4,20 @@ const { glabJson } = vi.hoisted(() => ({
   glabJson: vi.fn(),
 }));
 
-vi.mock("../src/glab.js", () => ({
-  glabJson,
+const { glabExec } = vi.hoisted(() => ({
+  glabExec: vi.fn(),
 }));
 
-import { RELEASE_HELP, releaseCommand } from "../src/release.js";
+vi.mock("../src/glab.js", () => ({
+  glabJson,
+  glabExec,
+}));
+
+import {
+  RELEASE_HELP,
+  RELEASE_VIEW_HELP,
+  releaseCommand,
+} from "../src/release.js";
 
 describe("releaseCommand", () => {
   beforeEach(() => {
@@ -38,6 +47,30 @@ describe("releaseCommand", () => {
     expect(glabJson).toHaveBeenCalledWith(
       ["release", "list", "--output", "json"],
       expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("renders release view output", async () => {
+    glabExec.mockResolvedValueOnce("release details\n");
+
+    const output = await releaseCommand(["view", "v1.2.3"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("release details");
+    expect(output).toContain("glab-axi release view --help");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["release", "view", "v1.2.3"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("returns release view help", async () => {
+    await expect(releaseCommand(["view", "--help"])).resolves.toBe(
+      RELEASE_VIEW_HELP,
     );
   });
 

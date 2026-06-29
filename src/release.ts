@@ -1,7 +1,7 @@
 import { encode } from "@toon-format/toon";
 import { AxiError } from "axi-sdk-js";
 import type { RepoContext } from "./context.js";
-import { glabJson } from "./glab.js";
+import { glabExec, glabJson } from "./glab.js";
 import { renderHelp, renderOutput } from "./toon.js";
 
 type Release = Record<string, unknown>;
@@ -16,6 +16,14 @@ examples:
   glab-axi release list
 `;
 
+export const RELEASE_VIEW_HELP = `usage: glab-axi release view [<tag>] [flags]
+Show release details.
+
+examples:
+  glab-axi release view
+  glab-axi release view v1.0.1
+`;
+
 export async function releaseCommand(
   args: string[],
   ctx?: RepoContext,
@@ -26,9 +34,22 @@ export async function releaseCommand(
     return RELEASE_HELP;
   }
 
+  if (subcommand === "view") {
+    if (args.includes("--help") || args.includes("-h")) {
+      return RELEASE_VIEW_HELP;
+    }
+
+    const output = await glabExec(["release", "view", ...args.slice(1)], ctx);
+
+    return renderOutput([
+      output.trim(),
+      renderHelp(["Use `glab-axi release view --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "list") {
     throw new AxiError("Unknown release subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi release list`",
+      "Run `glab-axi release list` or `glab-axi release view [<tag>]`",
     ]);
   }
 
