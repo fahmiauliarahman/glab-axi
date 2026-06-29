@@ -20,6 +20,7 @@ import {
   ISSUE_CREATE_HELP,
   ISSUE_HELP,
   ISSUE_NOTE_HELP,
+  ISSUE_REOPEN_HELP,
   ISSUE_UPDATE_HELP,
   ISSUE_VIEW_HELP,
 } from "../src/issue.js";
@@ -187,6 +188,24 @@ describe("issueCommand", () => {
     );
   });
 
+  it("renders issue reopen passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Reopened issue #42");
+
+    const output = await issueCommand(["reopen", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Reopened issue #42");
+    expect(output).toContain("Use `glab-axi issue reopen --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "reopen", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns issue view help when asked", async () => {
     await expect(issueCommand(["view", "--help"])).resolves.toBe(
       ISSUE_VIEW_HELP,
@@ -220,6 +239,30 @@ describe("issueCommand", () => {
   it("returns issue delete help when asked", async () => {
     await expect(issueCommand(["delete", "--help"])).resolves.toBe(
       ISSUE_DELETE_HELP,
+    );
+  });
+
+  it("returns issue reopen help when asked", async () => {
+    await expect(issueCommand(["reopen", "--help"])).resolves.toBe(
+      ISSUE_REOPEN_HELP,
+    );
+  });
+
+  it("treats issue open as reopen", async () => {
+    glabExec.mockResolvedValueOnce("Reopened issue #42");
+
+    const output = await issueCommand(["open", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Reopened issue #42");
+    expect(output).toContain("Use `glab-axi issue reopen --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "reopen", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
     );
   });
 

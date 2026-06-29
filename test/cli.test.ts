@@ -52,6 +52,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi pipeline run");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi issue view 42");
+    expect(TOP_HELP).toContain("glab-axi issue reopen 42");
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi project view");
     expect(TOP_HELP).toContain("glab-axi mr list");
@@ -126,6 +127,9 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci list");
     expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci run");
     expect(options.getCommandHelp("issue")).toContain("glab-axi issue list");
+    expect(options.getCommandHelp("issue")).toContain(
+      "glab-axi issue reopen 42",
+    );
     expect(options.getCommandHelp("label")).toContain("glab-axi label list");
     expect(options.getCommandHelp("project")).toContain(
       "glab-axi project view",

@@ -7,8 +7,8 @@ import { renderHelp, renderOutput } from "./toon.js";
 type Issue = Record<string, unknown>;
 
 export const ISSUE_HELP = `usage: glab-axi issue <subcommand> [flags]
-subcommands[8]:
-  list, view <number>, create, note <number>, comment <number>, update <number>, close <number>, delete <number>
+subcommands[9]:
+  list, view <number>, create, note <number>, comment <number>, update <number>, close <number>, delete <number>, reopen <number>, open <number>
 
 flags{list}:
   --output json
@@ -22,6 +22,7 @@ examples:
   glab-axi issue note 42 -m "closing because !123 was merged"
   glab-axi issue comment 42 -m "closing because !123 was merged"
   glab-axi issue delete 42
+  glab-axi issue reopen 42
 `;
 
 export const ISSUE_VIEW_HELP = `usage: glab-axi issue view <number> [flags]
@@ -74,6 +75,14 @@ Delete an issue.
 
 examples:
   glab-axi issue delete 42
+`;
+
+export const ISSUE_REOPEN_HELP = `usage: glab-axi issue reopen <number> [flags]
+Reopen a closed issue.
+
+examples:
+  glab-axi issue reopen 42
+  glab-axi issue open 42
 `;
 
 export async function issueCommand(
@@ -168,9 +177,22 @@ export async function issueCommand(
     ]);
   }
 
+  if (subcommand === "reopen" || subcommand === "open") {
+    if (wantsHelp) {
+      return ISSUE_REOPEN_HELP;
+    }
+
+    const output = await glabExec(["issue", "reopen", ...args.slice(1)], ctx);
+
+    return renderOutput([
+      output.trim(),
+      renderHelp(["Use `glab-axi issue reopen --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "list") {
     throw new AxiError("Unknown issue subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, `glab-axi issue comment <number>`, `glab-axi issue update <number>`, `glab-axi issue close <number>`, or `glab-axi issue delete <number>`",
+      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, `glab-axi issue comment <number>`, `glab-axi issue update <number>`, `glab-axi issue close <number>`, `glab-axi issue delete <number>`, or `glab-axi issue reopen <number>`",
     ]);
   }
 

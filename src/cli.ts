@@ -44,6 +44,7 @@ examples:
   glab-axi pipeline run
   glab-axi issue list
   glab-axi issue view 42
+  glab-axi issue reopen 42
   glab-axi label list
   glab-axi project view
   glab-axi mr list
