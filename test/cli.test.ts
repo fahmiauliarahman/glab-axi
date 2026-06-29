@@ -54,6 +54,8 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi mr view 42");
     expect(TOP_HELP).toContain("glab-axi release list");
     expect(TOP_HELP).toContain("glab-axi search repos --search");
+    expect(TOP_HELP).toContain("glab-axi update --check");
+    expect(TOP_HELP).toContain("glab-axi update");
     expect(TOP_HELP).toContain("glab-axi setup hooks");
     expect(TOP_HELP).toContain("-R/--repo <OWNER/NAME>");
   });

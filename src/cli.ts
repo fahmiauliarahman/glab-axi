@@ -45,6 +45,8 @@ examples:
   glab-axi mr view 42
   glab-axi release list
   glab-axi search repos --search "cli tool"
+  glab-axi update --check
+  glab-axi update
   glab-axi -R group/project
   glab-axi repo view
   glab-axi setup hooks
