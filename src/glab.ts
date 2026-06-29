@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import type { RepoContext } from "./context.js";
 import { AxiError } from "axi-sdk-js";
+import { glabNotInstalledError, mapGlabError } from "./errors.js";
 
 const MAX_BUFFER_BYTES = 10 * 1024 * 1024;
 
@@ -60,11 +61,11 @@ export async function glabExec(
   ctx?: RepoContext,
 ): Promise<string> {
   const result = await run(buildArgs(args, ctx));
+  if (result.stderr === "ENOENT") {
+    throw glabNotInstalledError();
+  }
   if (result.exitCode !== 0) {
-    throw new AxiError(
-      result.stderr.trim() || result.stdout.trim() || "glab failed",
-      "UNKNOWN",
-    );
+    throw mapGlabError(result.stderr, result.exitCode);
   }
 
   return result.stdout;
