@@ -105,6 +105,23 @@ describe("ciCommand", () => {
     );
   });
 
+  it("accepts ci create as an alias for ci run", async () => {
+    glabExec.mockResolvedValueOnce("");
+
+    const output = await ciCommand(["create", "--web"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("pipeline_run:");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["ci", "run", "--web"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("triggers ci pipelines", async () => {
     glabExec.mockResolvedValueOnce("");
 

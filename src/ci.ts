@@ -18,6 +18,9 @@ Show pipeline status for current branch.
 usage: glab-axi ci run [flags]
 Run a new pipeline for current branch.
 
+usage: glab-axi ci create [flags]
+Alias for ci run.
+
 usage: glab-axi ci run-trig [flags]
 Trigger a pipeline with a token.
 
@@ -47,6 +50,7 @@ examples:
   glab-axi ci get
   glab-axi ci status
   glab-axi ci run
+  glab-axi ci create
   glab-axi ci run-trig -t xxxx
   glab-axi ci trace 224356863
 `;
@@ -99,6 +103,10 @@ export async function ciCommand(
       ]);
     }
 
+    if (subcommand === "create") {
+      return ciCommand(["run", ...args.slice(1)], ctx);
+    }
+
     if (subcommand === "run-trig") {
       await glabExec(["ci", "run-trig", ...args.slice(1)], ctx);
 
@@ -117,6 +125,7 @@ export async function ciCommand(
       "Run `glab-axi ci get`",
       "Run `glab-axi ci status`",
       "Run `glab-axi ci run`",
+      "Run `glab-axi ci create`",
       "Run `glab-axi ci run-trig`",
       "Run `glab-axi ci trace`",
     ]);
