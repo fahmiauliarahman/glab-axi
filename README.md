@@ -2,4 +2,4 @@
 
 AXI-compliant wrapper around `glab`.
 
-Current slice: CLI shell plus `setup hooks` ambient-context installer.
+Current slice: CLI shell plus `issue list`, `repo view`, and `setup hooks`.
