@@ -5,6 +5,7 @@ import { runAxiCli } from "axi-sdk-js";
 import { resolveRepo, type RepoContext } from "./context.js";
 import { homeCommand } from "./home.js";
 import { issueCommand, ISSUE_HELP } from "./issue.js";
+import { mrCommand, MR_HELP } from "./mr.js";
 import { repoCommand, REPO_HELP } from "./repo.js";
 import { setupCommand, SETUP_HELP } from "./setup.js";
 
@@ -21,13 +22,14 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[4]:
-  (none)=dashboard, issue, repo, setup
+commands[5]:
+  (none)=dashboard, issue, mr, repo, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form, --help, -v/-V/--version
 examples:
   glab-axi
   glab-axi issue list
+  glab-axi mr list
   glab-axi -R group/project
   glab-axi repo view
   glab-axi setup hooks
@@ -35,6 +37,7 @@ examples:
 
 const COMMAND_HELP: Record<string, string> = {
   issue: ISSUE_HELP,
+  mr: MR_HELP,
   repo: REPO_HELP,
   setup: SETUP_HELP,
 };
@@ -59,6 +62,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
     home: withRepoContext(undefined, homeCommand),
     commands: {
       issue: withRepoContext("issue", issueCommand),
+      mr: withRepoContext("mr", mrCommand),
       repo: withRepoContext("repo", repoCommand),
       setup: setupCommand,
     },
