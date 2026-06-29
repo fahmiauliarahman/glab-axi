@@ -1,7 +1,7 @@
 import { encode } from "@toon-format/toon";
 import { AxiError } from "axi-sdk-js";
 import type { RepoContext } from "./context.js";
-import { glabJson } from "./glab.js";
+import { glabExec, glabJson } from "./glab.js";
 import { searchCommand } from "./search.js";
 import { renderHelp, renderKeyValueBlock, renderOutput } from "./toon.js";
 
@@ -12,8 +12,8 @@ type Repo = {
 };
 
 export const REPO_HELP = `usage: glab-axi repo <subcommand> [flags]
-subcommands[5]:
-  list, search, find, lookup, view
+subcommands[6]:
+  list, search, find, lookup, view, create
 
 flags{list}:
   --output json
@@ -29,6 +29,7 @@ examples:
   glab-axi repo list
   glab-axi repo search --search "cli tool"
   glab-axi repo view
+  glab-axi repo create my-project
 `;
 
 export const REPO_LIST_HELP = `usage: glab-axi repo list [flags]
@@ -65,6 +66,20 @@ flags{view}:
 
 examples:
   glab-axi repo view
+`;
+
+export const REPO_CREATE_HELP = `usage: glab-axi repo create [<name>] [flags]
+Create a repository.
+
+flags{create}:
+  -g, --group <group>
+  --description <text>
+  --visibility {private,internal,public}
+
+examples:
+  glab-axi repo create
+  glab-axi repo create my-project
+  glab-axi repo create glab-cli/my-project
 `;
 
 export async function repoCommand(
@@ -105,11 +120,25 @@ export async function repoCommand(
     return searchCommand(["repos", ...args.slice(1)], ctx);
   }
 
+  if (subcommand === "create") {
+    if (args.includes("--help") || args.includes("-h")) {
+      return REPO_CREATE_HELP;
+    }
+
+    const output = await glabExec(["repo", "create", ...args.slice(1)], ctx);
+
+    return renderOutput([
+      output.trim(),
+      renderHelp(["Use `glab-axi repo create --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "view") {
     throw new AxiError("Unknown repo subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi repo list`",
       "Run `glab-axi repo search`",
       "Run `glab-axi repo view`",
+      "Run `glab-axi repo create`",
     ]);
   }
 

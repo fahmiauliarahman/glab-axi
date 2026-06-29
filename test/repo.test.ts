@@ -4,13 +4,19 @@ const { glabJson } = vi.hoisted(() => ({
   glabJson: vi.fn(),
 }));
 
+const { glabExec } = vi.hoisted(() => ({
+  glabExec: vi.fn(),
+}));
+
 vi.mock("../src/glab.js", () => ({
   glabJson,
+  glabExec,
 }));
 
 import {
   repoCommand,
   REPO_HELP,
+  REPO_CREATE_HELP,
   REPO_LIST_HELP,
   REPO_SEARCH_HELP,
   REPO_VIEW_HELP,
@@ -35,6 +41,12 @@ describe("repoCommand", () => {
 
   it("returns view help on demand", async () => {
     await expect(repoCommand(["view", "--help"])).resolves.toBe(REPO_VIEW_HELP);
+  });
+
+  it("returns create help on demand", async () => {
+    await expect(repoCommand(["create", "--help"])).resolves.toBe(
+      REPO_CREATE_HELP,
+    );
   });
 
   it.each(["search", "find", "lookup"])(
@@ -94,6 +106,27 @@ describe("repoCommand", () => {
     expect(output).toContain("Use `glab-axi repo list --help`");
     expect(glabJson).toHaveBeenCalledWith(
       ["repo", "list", "--output", "json"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("renders repo create output", async () => {
+    glabExec.mockResolvedValueOnce("created project\n");
+
+    const output = await repoCommand(
+      ["create", "my-project", "--visibility", "public"],
+      {
+        owner: "group",
+        name: "project",
+        nwo: "group/project",
+        source: "flag",
+      },
+    );
+
+    expect(output).toContain("created project");
+    expect(output).toContain("glab-axi repo create --help");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["repo", "create", "my-project", "--visibility", "public"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });

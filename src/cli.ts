@@ -55,6 +55,7 @@ examples:
   glab-axi release list
   glab-axi release create v1.0.1
   glab-axi repo search --search "cli tool"
+  glab-axi repo create my-project
   glab-axi search repos --search "cli tool"
   glab-axi update --check
   glab-axi update
