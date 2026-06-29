@@ -43,20 +43,23 @@ describe("projectCommand", () => {
     );
   });
 
-  it("routes search to search repos", async () => {
-    searchCommand.mockResolvedValueOnce("search output");
+  it.each(["search", "find", "lookup"])(
+    "routes %s to search repos",
+    async (subcommand) => {
+      searchCommand.mockResolvedValueOnce("search output");
 
-    await expect(
-      projectCommand(["search", "--search", "cli tool"], {
-        nwo: "group/project",
-      }),
-    ).resolves.toBe("search output");
+      await expect(
+        projectCommand([subcommand, "--search", "cli tool"], {
+          nwo: "group/project",
+        }),
+      ).resolves.toBe("search output");
 
-    expect(searchCommand).toHaveBeenCalledWith(
-      ["repos", "--search", "cli tool"],
-      expect.objectContaining({ nwo: "group/project" }),
-    );
-  });
+      expect(searchCommand).toHaveBeenCalledWith(
+        ["repos", "--search", "cli tool"],
+        expect.objectContaining({ nwo: "group/project" }),
+      );
+    },
+  );
 
   it("rejects unknown subcommands", async () => {
     await expect(projectCommand(["unknown"])).rejects.toThrow(
