@@ -112,6 +112,27 @@ describe("issueCommand", () => {
     );
   });
 
+  it("treats issue comment as note", async () => {
+    glabExec.mockResolvedValueOnce("Created note on issue #42");
+
+    const output = await issueCommand(
+      ["comment", "42", "--message", "closing because !123 was merged"],
+      {
+        owner: "group",
+        name: "project",
+        nwo: "group/project",
+        source: "flag",
+      },
+    );
+
+    expect(output).toContain("Created note on issue #42");
+    expect(output).toContain("Use `glab-axi issue note --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "note", "42", "--message", "closing because !123 was merged"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("renders issue update passthrough output", async () => {
     glabExec.mockResolvedValueOnce("Updated issue #42");
 

@@ -7,8 +7,8 @@ import { renderHelp, renderOutput } from "./toon.js";
 type Issue = Record<string, unknown>;
 
 export const ISSUE_HELP = `usage: glab-axi issue <subcommand> [flags]
-subcommands[7]:
-  list, view <number>, create, note <number>, update <number>, close <number>, delete <number>
+subcommands[8]:
+  list, view <number>, create, note <number>, comment <number>, update <number>, close <number>, delete <number>
 
 flags{list}:
   --output json
@@ -20,6 +20,7 @@ examples:
   glab-axi issue list
   glab-axi issue create --title "Fix login"
   glab-axi issue note 42 -m "closing because !123 was merged"
+  glab-axi issue comment 42 -m "closing because !123 was merged"
   glab-axi issue delete 42
 `;
 
@@ -115,7 +116,7 @@ export async function issueCommand(
     ]);
   }
 
-  if (subcommand === "note") {
+  if (subcommand === "note" || subcommand === "comment") {
     if (wantsHelp) {
       return ISSUE_NOTE_HELP;
     }
@@ -169,7 +170,7 @@ export async function issueCommand(
 
   if (subcommand !== "list") {
     throw new AxiError("Unknown issue subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, `glab-axi issue update <number>`, `glab-axi issue close <number>`, or `glab-axi issue delete <number>`",
+      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, `glab-axi issue comment <number>`, `glab-axi issue update <number>`, `glab-axi issue close <number>`, or `glab-axi issue delete <number>`",
     ]);
   }
 
