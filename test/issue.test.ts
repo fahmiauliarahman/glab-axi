@@ -4,11 +4,21 @@ const { glabJson } = vi.hoisted(() => ({
   glabJson: vi.fn(),
 }));
 
-vi.mock("../src/glab.js", () => ({
-  glabJson,
+const { glabExec } = vi.hoisted(() => ({
+  glabExec: vi.fn(),
 }));
 
-import { issueCommand, ISSUE_HELP, ISSUE_VIEW_HELP } from "../src/issue.js";
+vi.mock("../src/glab.js", () => ({
+  glabJson,
+  glabExec,
+}));
+
+import {
+  issueCommand,
+  ISSUE_CREATE_HELP,
+  ISSUE_HELP,
+  ISSUE_VIEW_HELP,
+} from "../src/issue.js";
 
 describe("issueCommand", () => {
   beforeEach(() => {
@@ -59,9 +69,33 @@ describe("issueCommand", () => {
     );
   });
 
+  it("renders issue create passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Created issue #43");
+
+    const output = await issueCommand(["create", "--title", "Fix login"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Created issue #43");
+    expect(output).toContain("Use `glab-axi issue create --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "create", "--title", "Fix login"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns issue view help when asked", async () => {
     await expect(issueCommand(["view", "--help"])).resolves.toBe(
       ISSUE_VIEW_HELP,
+    );
+  });
+
+  it("returns issue create help when asked", async () => {
+    await expect(issueCommand(["create", "--help"])).resolves.toBe(
+      ISSUE_CREATE_HELP,
     );
   });
 
