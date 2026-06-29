@@ -43,6 +43,22 @@ export async function glabJson<T = unknown>(
   args: string[],
   ctx?: RepoContext,
 ): Promise<T> {
+  const stdout = await glabExec(args, ctx);
+
+  try {
+    return JSON.parse(stdout);
+  } catch {
+    throw new AxiError(
+      `Unexpected glab output: ${stdout.slice(0, 200)}`,
+      "UNKNOWN",
+    );
+  }
+}
+
+export async function glabExec(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const result = await run(buildArgs(args, ctx));
   if (result.exitCode !== 0) {
     throw new AxiError(
@@ -51,12 +67,5 @@ export async function glabJson<T = unknown>(
     );
   }
 
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    throw new AxiError(
-      `Unexpected glab output: ${result.stdout.slice(0, 200)}`,
-      "UNKNOWN",
-    );
-  }
+  return result.stdout;
 }

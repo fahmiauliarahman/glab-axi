@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAxiCli } from "axi-sdk-js";
+import { apiCommand, API_HELP } from "./api.js";
 import { ciCommand, CI_HELP } from "./ci.js";
 import { resolveRepo, type RepoContext } from "./context.js";
 import { homeCommand } from "./home.js";
@@ -26,12 +27,13 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[9]:
-  (none)=dashboard, ci, issue, label, mr, release, repo, search, setup
+commands[10]:
+  (none)=dashboard, api, ci, issue, label, mr, release, repo, search, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form, --help, -v/-V/--version
 examples:
   glab-axi
+  glab-axi api user
   glab-axi ci list
   glab-axi issue list
   glab-axi label list
@@ -44,6 +46,7 @@ examples:
 `;
 
 const COMMAND_HELP: Record<string, string> = {
+  api: API_HELP,
   ci: CI_HELP,
   issue: ISSUE_HELP,
   label: LABEL_HELP,
@@ -73,6 +76,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
     ...(options.stdout ? { stdout: options.stdout } : {}),
     home: withRepoContext(undefined, homeCommand),
     commands: {
+      api: withRepoContext("api", apiCommand),
       ci: withRepoContext("ci", ciCommand),
       issue: withRepoContext("issue", issueCommand),
       label: withRepoContext("label", labelCommand),

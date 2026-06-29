@@ -36,13 +36,14 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[9]:");
+    expect(TOP_HELP).toContain("commands[10]:");
     expect(TOP_HELP).toContain(
-      "ci, issue, label, mr, release, repo, search, setup",
+      "api, ci, issue, label, mr, release, repo, search, setup",
     );
     expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
+    expect(TOP_HELP).toContain("glab-axi api user");
     expect(TOP_HELP).toContain("glab-axi ci list");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi label list");
@@ -98,6 +99,7 @@ describe("main CLI", () => {
     await main();
 
     const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+    expect(options.commands.api).toBeTypeOf("function");
     expect(options.commands.ci).toBeTypeOf("function");
     expect(options.commands.issue).toBeTypeOf("function");
     expect(options.commands.label).toBeTypeOf("function");
@@ -134,6 +136,7 @@ describe("main CLI", () => {
 
     const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
     expect(options.getCommandHelp("setup")).toContain("glab-axi setup hooks");
+    expect(options.getCommandHelp("api")).toContain("glab-axi api user");
     expect(options.getCommandHelp("missing")).toBeUndefined();
   });
 
