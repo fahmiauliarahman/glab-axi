@@ -36,10 +36,11 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("flags[3]:");
+    expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
     expect(TOP_HELP).toContain("glab-axi setup hooks");
+    expect(TOP_HELP).toContain("-R/--repo <OWNER/NAME>");
   });
 
   it("passes bare top-level argv through to axi-sdk-js", async () => {
@@ -102,5 +103,22 @@ describe("main CLI", () => {
     const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
     expect(options.getCommandHelp("setup")).toContain("glab-axi setup hooks");
     expect(options.getCommandHelp("missing")).toBeUndefined();
+  });
+
+  it("resolves repo context from repo flags", async () => {
+    await main();
+
+    const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+    expect(
+      options.resolveContext({
+        command: undefined,
+        args: ["-R", "group/project"],
+      }),
+    ).toEqual({
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
   });
 });

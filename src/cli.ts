@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAxiCli } from "axi-sdk-js";
+import { resolveRepo, type RepoContext } from "./context.js";
 import { homeCommand } from "./home.js";
 import { setupCommand, SETUP_HELP } from "./setup.js";
 
@@ -20,10 +21,11 @@ type MainOptions = {
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
 commands[2]:
   (none)=dashboard, setup
-flags[3]:
-  --help, -v/-V/--version, session hooks via setup
+flags[4]:
+  -R/--repo <OWNER/NAME> (after command), accepts space or equals form, --help, -v/-V/--version
 examples:
   glab-axi
+  glab-axi -R group/project
   glab-axi setup hooks
 `;
 
@@ -31,18 +33,30 @@ const COMMAND_HELP: Record<string, string> = {
   setup: SETUP_HELP,
 };
 
+type CommandFn = (args: string[], ctx?: RepoContext) => Promise<string>;
+
+function withRepoContext(
+  command: string | undefined,
+  handler: CommandFn,
+): CommandFn {
+  return (args, ctx) =>
+    handler(parseRepoContextArgs(command, args).strippedArgs, ctx);
+}
+
 export async function main(options: MainOptions = {}): Promise<void> {
-  await runAxiCli({
+  await runAxiCli<RepoContext | undefined>({
     ...(options.argv ? { argv: options.argv } : {}),
     description: DESCRIPTION,
     version: VERSION,
     topLevelHelp: TOP_HELP,
     ...(options.stdout ? { stdout: options.stdout } : {}),
-    home: homeCommand,
+    home: withRepoContext(undefined, homeCommand),
     commands: {
       setup: setupCommand,
     },
     getCommandHelp: (command) => COMMAND_HELP[command],
+    resolveContext: ({ command, args }) =>
+      resolveRepo(parseRepoContextArgs(command, args).repoFlag),
   });
 }
 
@@ -66,4 +80,41 @@ function readPackageVersion(): string {
   }
 
   throw new Error("Could not determine glab-axi package version");
+}
+
+function parseRepoContextArgs(
+  _command: string | undefined,
+  args: string[],
+): { repoFlag: string | undefined; strippedArgs: string[] } {
+  const stripped: string[] = [];
+  let repoFlag: string | undefined;
+
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+    if (arg === "-R" && index + 1 < args.length) {
+      repoFlag = args[index + 1];
+      index++;
+      continue;
+    }
+
+    if (arg.startsWith("-R=") && arg.length > 3) {
+      repoFlag = arg.slice(3);
+      continue;
+    }
+
+    if (arg === "--repo" && index + 1 < args.length) {
+      repoFlag = args[index + 1];
+      index++;
+      continue;
+    }
+
+    if (arg.startsWith("--repo=") && arg.length > "--repo=".length) {
+      repoFlag = arg.slice("--repo=".length);
+      continue;
+    }
+
+    stripped.push(arg);
+  }
+
+  return { repoFlag, strippedArgs: stripped };
 }
