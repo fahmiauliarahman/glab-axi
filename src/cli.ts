@@ -36,6 +36,7 @@ examples:
   glab-axi
   glab-axi api user
   glab-axi ci list
+  glab-axi ci status
   glab-axi issue list
   glab-axi label list
   glab-axi project view

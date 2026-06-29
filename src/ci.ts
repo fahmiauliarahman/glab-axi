@@ -9,11 +9,18 @@ type Pipeline = Record<string, unknown>;
 export const CI_HELP = `usage: glab-axi ci list [flags]
 List CI/CD pipelines.
 
+usage: glab-axi ci status [flags]
+Show pipeline status for current branch.
+
 flags{list}:
   --output json
 
+flags{status}:
+  --branch <name>, --live, --compact, --output json
+
 examples:
   glab-axi ci list
+  glab-axi ci status
 `;
 
 export async function ciCommand(
@@ -22,13 +29,30 @@ export async function ciCommand(
 ): Promise<string> {
   const subcommand = args[0];
 
-  if (subcommand === undefined || subcommand === "--help") {
+  if (
+    subcommand === undefined ||
+    subcommand === "--help" ||
+    args.includes("--help")
+  ) {
     return CI_HELP;
   }
 
   if (subcommand !== "list") {
+    if (subcommand === "status") {
+      const status = await glabJson<Record<string, unknown>>(
+        ["ci", "status", "--output", "json", ...args.slice(1)],
+        ctx,
+      );
+
+      return renderOutput([
+        `pipeline:\n  ${encode(status).replaceAll("\n", "\n  ")}`,
+        renderHelp(["Use `glab-axi ci status --help` for glab flags"]),
+      ]);
+    }
+
     throw new AxiError("Unknown ci subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi ci list`",
+      "Run `glab-axi ci status`",
     ]);
   }
 

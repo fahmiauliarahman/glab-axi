@@ -41,6 +41,28 @@ describe("ciCommand", () => {
     );
   });
 
+  it("renders ci status output", async () => {
+    glabJson.mockResolvedValueOnce({
+      id: 9,
+      status: "success",
+      ref: "main",
+    });
+
+    const output = await ciCommand(["status", "--branch", "main"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("pipeline:");
+    expect(output).toContain("success");
+    expect(glabJson).toHaveBeenCalledWith(
+      ["ci", "status", "--output", "json", "--branch", "main"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("rejects unknown subcommands", async () => {
     await expect(ciCommand(["unknown"])).rejects.toThrow(
       "Unknown ci subcommand",
