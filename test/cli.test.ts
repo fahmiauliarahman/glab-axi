@@ -152,6 +152,7 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("release")).toContain(
       "glab-axi release list",
     );
+    expect(options.getCommandHelp("repo")).toContain("glab-axi repo list");
     expect(options.getCommandHelp("repo")).toContain("glab-axi repo view");
     expect(options.getCommandHelp("search")).toContain("glab-axi search repos");
   });

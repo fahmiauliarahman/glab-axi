@@ -1,3 +1,4 @@
+import { encode } from "@toon-format/toon";
 import { AxiError } from "axi-sdk-js";
 import type { RepoContext } from "./context.js";
 import { glabJson } from "./glab.js";
@@ -9,7 +10,32 @@ type Repo = {
   description?: string;
 };
 
-export const REPO_HELP = `usage: glab-axi repo view [flags]
+export const REPO_HELP = `usage: glab-axi repo <subcommand> [flags]
+subcommands[2]:
+  list, view
+
+flags{list}:
+  --output json
+
+flags{view}:
+  --output json
+
+examples:
+  glab-axi repo list
+  glab-axi repo view
+`;
+
+export const REPO_LIST_HELP = `usage: glab-axi repo list [flags]
+List repositories.
+
+flags{list}:
+  --output json
+
+examples:
+  glab-axi repo list
+`;
+
+export const REPO_VIEW_HELP = `usage: glab-axi repo view [flags]
 View current project metadata.
 
 flags{view}:
@@ -29,10 +55,30 @@ export async function repoCommand(
     return REPO_HELP;
   }
 
+  if (subcommand === "list") {
+    if (args.includes("--help") || args.includes("-h")) {
+      return REPO_LIST_HELP;
+    }
+
+    const repos = await glabJson<Repo[]>(
+      ["repo", "list", "--output", "json"],
+      ctx,
+    );
+
+    return renderOutput([
+      `repos:\n  ${encode(repos).replaceAll("\n", "\n  ")}`,
+      renderHelp(["Use `glab-axi repo list --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "view") {
     throw new AxiError("Unknown repo subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi repo view`",
+      "Run `glab-axi repo list` or `glab-axi repo view`",
     ]);
+  }
+
+  if (args.includes("--help") || args.includes("-h")) {
+    return REPO_VIEW_HELP;
   }
 
   const repo = await glabJson<Repo>(["repo", "view", "--output", "json"], ctx);
