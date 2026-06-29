@@ -8,7 +8,7 @@ vi.mock("../src/glab.js", () => ({
   glabJson,
 }));
 
-import { mrCommand, MR_HELP } from "../src/mr.js";
+import { mrCommand, MR_HELP, MR_VIEW_HELP } from "../src/mr.js";
 
 describe("mrCommand", () => {
   beforeEach(() => {
@@ -39,6 +39,28 @@ describe("mrCommand", () => {
       ["mr", "list", "--output", "json"],
       expect.objectContaining({ nwo: "group/project" }),
     );
+  });
+
+  it("renders merge request view output", async () => {
+    glabJson.mockResolvedValueOnce({ iid: 7, title: "Ship it" });
+
+    const output = await mrCommand(["view", "7"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("mr:");
+    expect(output).toContain("Ship it");
+    expect(glabJson).toHaveBeenCalledWith(
+      ["mr", "view", "7", "--output", "json"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("returns merge request view help when asked", async () => {
+    await expect(mrCommand(["view", "--help"])).resolves.toBe(MR_VIEW_HELP);
   });
 
   it("rejects unknown subcommands", async () => {

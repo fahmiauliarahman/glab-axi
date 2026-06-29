@@ -42,6 +42,7 @@ examples:
   glab-axi label list
   glab-axi project view
   glab-axi mr list
+  glab-axi mr view 42
   glab-axi release list
   glab-axi search repos --search "cli tool"
   glab-axi -R group/project

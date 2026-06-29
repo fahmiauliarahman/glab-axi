@@ -51,6 +51,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi project view");
     expect(TOP_HELP).toContain("glab-axi mr list");
+    expect(TOP_HELP).toContain("glab-axi mr view 42");
     expect(TOP_HELP).toContain("glab-axi release list");
     expect(TOP_HELP).toContain("glab-axi search repos --search");
     expect(TOP_HELP).toContain("glab-axi setup hooks");
@@ -119,6 +120,7 @@ describe("main CLI", () => {
       "glab-axi project view",
     );
     expect(options.getCommandHelp("mr")).toContain("glab-axi mr list");
+    expect(options.getCommandHelp("mr")).toContain("glab-axi mr view 42");
     expect(options.getCommandHelp("release")).toContain(
       "glab-axi release list",
     );
