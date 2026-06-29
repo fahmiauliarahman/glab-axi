@@ -46,6 +46,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi api user");
     expect(TOP_HELP).toContain("glab-axi ci list");
     expect(TOP_HELP).toContain("glab-axi ci status");
+    expect(TOP_HELP).toContain("glab-axi ci run");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi issue view 42");
     expect(TOP_HELP).toContain("glab-axi label list");
@@ -116,6 +117,7 @@ describe("main CLI", () => {
     expect(options.commands.search).toBeTypeOf("function");
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci list");
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci status");
+    expect(options.getCommandHelp("ci")).toContain("glab-axi ci run");
     expect(options.getCommandHelp("issue")).toContain("glab-axi issue list");
     expect(options.getCommandHelp("label")).toContain("glab-axi label list");
     expect(options.getCommandHelp("project")).toContain(

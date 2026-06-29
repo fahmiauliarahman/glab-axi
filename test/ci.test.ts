@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { glabJson } = vi.hoisted(() => ({
+const { glabExec, glabJson } = vi.hoisted(() => ({
+  glabExec: vi.fn(),
   glabJson: vi.fn(),
 }));
 
 vi.mock("../src/glab.js", () => ({
+  glabExec,
   glabJson,
 }));
 
@@ -81,6 +83,24 @@ describe("ciCommand", () => {
     expect(output).toContain("success");
     expect(glabJson).toHaveBeenCalledWith(
       ["ci", "status", "--output", "json", "--branch", "main"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("runs ci pipelines", async () => {
+    glabExec.mockResolvedValueOnce("");
+
+    const output = await ciCommand(["run", "--web"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("pipeline_run:");
+    expect(output).toContain("ok");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["ci", "run", "--web"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });

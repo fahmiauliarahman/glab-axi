@@ -1,7 +1,7 @@
 import { encode } from "@toon-format/toon";
 import { AxiError } from "axi-sdk-js";
 import type { RepoContext } from "./context.js";
-import { glabJson } from "./glab.js";
+import { glabExec, glabJson } from "./glab.js";
 import { renderHelp, renderOutput } from "./toon.js";
 
 type Pipeline = Record<string, unknown>;
@@ -15,6 +15,9 @@ Show pipeline details for current branch.
 usage: glab-axi ci status [flags]
 Show pipeline status for current branch.
 
+usage: glab-axi ci run [flags]
+Run a new pipeline for current branch.
+
 flags{list}:
   --output json
 
@@ -24,10 +27,14 @@ flags{get}:
 flags{status}:
   --branch <name>, --live, --compact, --output json
 
+flags{run}:
+  --web
+
 examples:
   glab-axi ci list
   glab-axi ci get
   glab-axi ci status
+  glab-axi ci run
 `;
 
 export async function ciCommand(
@@ -69,10 +76,20 @@ export async function ciCommand(
       ]);
     }
 
+    if (subcommand === "run") {
+      await glabExec(["ci", "run", ...args.slice(1)], ctx);
+
+      return renderOutput([
+        encode({ pipeline_run: "ok" }),
+        renderHelp(["Use `glab-axi ci run --help` for glab flags"]),
+      ]);
+    }
+
     throw new AxiError("Unknown ci subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi ci list`",
       "Run `glab-axi ci get`",
       "Run `glab-axi ci status`",
+      "Run `glab-axi ci run`",
     ]);
   }
 
