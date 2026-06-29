@@ -18,6 +18,9 @@ Show pipeline status for current branch.
 usage: glab-axi ci run [flags]
 Run a new pipeline for current branch.
 
+usage: glab-axi ci run-trig [flags]
+Trigger a pipeline with a token.
+
 flags{list}:
   --output json
 
@@ -30,11 +33,15 @@ flags{status}:
 flags{run}:
   --web
 
+flags{run-trig}:
+  --token, --branch, --input, --variables
+
 examples:
   glab-axi ci list
   glab-axi ci get
   glab-axi ci status
   glab-axi ci run
+  glab-axi ci run-trig -t xxxx
 `;
 
 export async function ciCommand(
@@ -85,11 +92,21 @@ export async function ciCommand(
       ]);
     }
 
+    if (subcommand === "run-trig") {
+      await glabExec(["ci", "run-trig", ...args.slice(1)], ctx);
+
+      return renderOutput([
+        encode({ pipeline_trigger: "ok" }),
+        renderHelp(["Use `glab-axi ci run-trig --help` for glab flags"]),
+      ]);
+    }
+
     throw new AxiError("Unknown ci subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi ci list`",
       "Run `glab-axi ci get`",
       "Run `glab-axi ci status`",
       "Run `glab-axi ci run`",
+      "Run `glab-axi ci run-trig`",
     ]);
   }
 

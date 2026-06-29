@@ -105,6 +105,24 @@ describe("ciCommand", () => {
     );
   });
 
+  it("triggers ci pipelines", async () => {
+    glabExec.mockResolvedValueOnce("");
+
+    const output = await ciCommand(["run-trig", "-t", "xxxx"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("pipeline_trigger:");
+    expect(output).toContain("ok");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["ci", "run-trig", "-t", "xxxx"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("rejects unknown subcommands", async () => {
     await expect(ciCommand(["unknown"])).rejects.toThrow(
       "Unknown ci subcommand",
