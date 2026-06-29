@@ -18,6 +18,7 @@ import {
   ISSUE_CREATE_HELP,
   ISSUE_HELP,
   ISSUE_NOTE_HELP,
+  ISSUE_UPDATE_HELP,
   ISSUE_VIEW_HELP,
 } from "../src/issue.js";
 
@@ -109,6 +110,24 @@ describe("issueCommand", () => {
     );
   });
 
+  it("renders issue update passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Updated issue #42");
+
+    const output = await issueCommand(["update", "42", "--label", "bug"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Updated issue #42");
+    expect(output).toContain("Use `glab-axi issue update --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "update", "42", "--label", "bug"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns issue view help when asked", async () => {
     await expect(issueCommand(["view", "--help"])).resolves.toBe(
       ISSUE_VIEW_HELP,
@@ -124,6 +143,12 @@ describe("issueCommand", () => {
   it("returns issue note help when asked", async () => {
     await expect(issueCommand(["note", "--help"])).resolves.toBe(
       ISSUE_NOTE_HELP,
+    );
+  });
+
+  it("returns issue update help when asked", async () => {
+    await expect(issueCommand(["update", "--help"])).resolves.toBe(
+      ISSUE_UPDATE_HELP,
     );
   });
 
