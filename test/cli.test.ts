@@ -36,10 +36,11 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[11]:");
+    expect(TOP_HELP).toContain("commands[12]:");
     expect(TOP_HELP).toContain(
-      "api, ci, issue, label, project, mr, release, repo, search, setup",
+      "(none)=dashboard, api, ci, pipeline, issue, label, project, mr,",
     );
+    expect(TOP_HELP).toContain("release, repo, search, setup");
     expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
@@ -47,6 +48,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi ci list");
     expect(TOP_HELP).toContain("glab-axi ci status");
     expect(TOP_HELP).toContain("glab-axi ci run");
+    expect(TOP_HELP).toContain("glab-axi pipeline run");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi issue view 42");
     expect(TOP_HELP).toContain("glab-axi label list");
@@ -108,6 +110,7 @@ describe("main CLI", () => {
     const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
     expect(options.commands.api).toBeTypeOf("function");
     expect(options.commands.ci).toBeTypeOf("function");
+    expect(options.commands.pipeline).toBeTypeOf("function");
     expect(options.commands.issue).toBeTypeOf("function");
     expect(options.commands.label).toBeTypeOf("function");
     expect(options.commands.project).toBeTypeOf("function");
@@ -118,6 +121,8 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci list");
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci status");
     expect(options.getCommandHelp("ci")).toContain("glab-axi ci run");
+    expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci list");
+    expect(options.getCommandHelp("pipeline")).toContain("glab-axi ci run");
     expect(options.getCommandHelp("issue")).toContain("glab-axi issue list");
     expect(options.getCommandHelp("label")).toContain("glab-axi label list");
     expect(options.getCommandHelp("project")).toContain(
