@@ -21,6 +21,9 @@ Run a new pipeline for current branch.
 usage: glab-axi ci run-trig [flags]
 Trigger a pipeline with a token.
 
+usage: glab-axi ci trace <job-id|name> [flags]
+Stream a CI/CD job trace.
+
 flags{list}:
   --output json
 
@@ -36,12 +39,16 @@ flags{run}:
 flags{run-trig}:
   --token, --branch, --input, --variables
 
+flags{trace}:
+  --branch <name>, --pipeline-id <id>
+
 examples:
   glab-axi ci list
   glab-axi ci get
   glab-axi ci status
   glab-axi ci run
   glab-axi ci run-trig -t xxxx
+  glab-axi ci trace 224356863
 `;
 
 export async function ciCommand(
@@ -101,12 +108,17 @@ export async function ciCommand(
       ]);
     }
 
+    if (subcommand === "trace") {
+      return glabExec(["ci", "trace", ...args.slice(1)], ctx);
+    }
+
     throw new AxiError("Unknown ci subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi ci list`",
       "Run `glab-axi ci get`",
       "Run `glab-axi ci status`",
       "Run `glab-axi ci run`",
       "Run `glab-axi ci run-trig`",
+      "Run `glab-axi ci trace`",
     ]);
   }
 

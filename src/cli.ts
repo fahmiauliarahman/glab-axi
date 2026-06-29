@@ -40,6 +40,7 @@ examples:
   glab-axi ci list
   glab-axi ci status
   glab-axi ci run
+  glab-axi ci trace 224356863
   glab-axi pipeline run
   glab-axi issue list
   glab-axi issue view 42

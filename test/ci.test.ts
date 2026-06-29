@@ -123,6 +123,23 @@ describe("ciCommand", () => {
     );
   });
 
+  it("streams ci traces", async () => {
+    glabExec.mockResolvedValueOnce("trace output");
+
+    const output = await ciCommand(["trace", "224356863"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("trace output");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["ci", "trace", "224356863"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("rejects unknown subcommands", async () => {
     await expect(ciCommand(["unknown"])).rejects.toThrow(
       "Unknown ci subcommand",
