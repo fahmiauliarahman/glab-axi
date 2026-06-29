@@ -14,6 +14,7 @@ vi.mock("../src/glab.js", () => ({
 }));
 
 import {
+  ISSUE_CLOSE_HELP,
   issueCommand,
   ISSUE_CREATE_HELP,
   ISSUE_HELP,
@@ -128,6 +129,24 @@ describe("issueCommand", () => {
     );
   });
 
+  it("renders issue close passthrough output", async () => {
+    glabExec.mockResolvedValueOnce("Closed issue #42");
+
+    const output = await issueCommand(["close", "42"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("Closed issue #42");
+    expect(output).toContain("Use `glab-axi issue close --help`");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["issue", "close", "42"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns issue view help when asked", async () => {
     await expect(issueCommand(["view", "--help"])).resolves.toBe(
       ISSUE_VIEW_HELP,
@@ -149,6 +168,12 @@ describe("issueCommand", () => {
   it("returns issue update help when asked", async () => {
     await expect(issueCommand(["update", "--help"])).resolves.toBe(
       ISSUE_UPDATE_HELP,
+    );
+  });
+
+  it("returns issue close help when asked", async () => {
+    await expect(issueCommand(["close", "--help"])).resolves.toBe(
+      ISSUE_CLOSE_HELP,
     );
   });
 

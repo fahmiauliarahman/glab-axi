@@ -7,8 +7,8 @@ import { renderHelp, renderOutput } from "./toon.js";
 type Issue = Record<string, unknown>;
 
 export const ISSUE_HELP = `usage: glab-axi issue <subcommand> [flags]
-subcommands[5]:
-  list, view <number>, create, note <number>, update <number>
+subcommands[6]:
+  list, view <number>, create, note <number>, update <number>, close <number>
 
 flags{list}:
   --output json
@@ -58,6 +58,13 @@ flags{update}:
 
 examples:
   glab-axi issue update 42 --label bug
+`;
+
+export const ISSUE_CLOSE_HELP = `usage: glab-axi issue close <number> [flags]
+Close an issue.
+
+examples:
+  glab-axi issue close 42
 `;
 
 export async function issueCommand(
@@ -126,9 +133,22 @@ export async function issueCommand(
     ]);
   }
 
+  if (subcommand === "close") {
+    if (wantsHelp) {
+      return ISSUE_CLOSE_HELP;
+    }
+
+    const output = await glabExec(["issue", "close", ...args.slice(1)], ctx);
+
+    return renderOutput([
+      output.trim(),
+      renderHelp(["Use `glab-axi issue close --help` for glab flags"]),
+    ]);
+  }
+
   if (subcommand !== "list") {
     throw new AxiError("Unknown issue subcommand", "VALIDATION_ERROR", [
-      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, or `glab-axi issue update <number>`",
+      "Run `glab-axi issue list`, `glab-axi issue view <number>`, `glab-axi issue create`, `glab-axi issue note <number>`, `glab-axi issue update <number>`, or `glab-axi issue close <number>`",
     ]);
   }
 
