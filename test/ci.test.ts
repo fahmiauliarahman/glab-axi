@@ -41,6 +41,28 @@ describe("ciCommand", () => {
     );
   });
 
+  it("renders ci get output", async () => {
+    glabJson.mockResolvedValueOnce({
+      id: 9,
+      status: "success",
+      ref: "main",
+    });
+
+    const output = await ciCommand(["get", "--pipeline-id", "9"], {
+      owner: "group",
+      name: "project",
+      nwo: "group/project",
+      source: "flag",
+    });
+
+    expect(output).toContain("pipeline:");
+    expect(output).toContain("success");
+    expect(glabJson).toHaveBeenCalledWith(
+      ["ci", "get", "--output", "json", "--pipeline-id", "9"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("renders ci status output", async () => {
     glabJson.mockResolvedValueOnce({
       id: 9,

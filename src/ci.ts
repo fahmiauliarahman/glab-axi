@@ -9,17 +9,24 @@ type Pipeline = Record<string, unknown>;
 export const CI_HELP = `usage: glab-axi ci list [flags]
 List CI/CD pipelines.
 
+usage: glab-axi ci get [flags]
+Show pipeline details for current branch.
+
 usage: glab-axi ci status [flags]
 Show pipeline status for current branch.
 
 flags{list}:
   --output json
 
+flags{get}:
+  --pipeline-id <id>, --merge-request, --status <state>, --output json
+
 flags{status}:
   --branch <name>, --live, --compact, --output json
 
 examples:
   glab-axi ci list
+  glab-axi ci get
   glab-axi ci status
 `;
 
@@ -38,6 +45,18 @@ export async function ciCommand(
   }
 
   if (subcommand !== "list") {
+    if (subcommand === "get") {
+      const pipeline = await glabJson<Record<string, unknown>>(
+        ["ci", "get", "--output", "json", ...args.slice(1)],
+        ctx,
+      );
+
+      return renderOutput([
+        `pipeline:\n  ${encode(pipeline).replaceAll("\n", "\n  ")}`,
+        renderHelp(["Use `glab-axi ci get --help` for glab flags"]),
+      ]);
+    }
+
     if (subcommand === "status") {
       const status = await glabJson<Record<string, unknown>>(
         ["ci", "status", "--output", "json", ...args.slice(1)],
@@ -52,6 +71,7 @@ export async function ciCommand(
 
     throw new AxiError("Unknown ci subcommand", "VALIDATION_ERROR", [
       "Run `glab-axi ci list`",
+      "Run `glab-axi ci get`",
       "Run `glab-axi ci status`",
     ]);
   }
