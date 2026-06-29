@@ -28,9 +28,9 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[13]:
+commands[14]:
   (none)=dashboard, api, ci, pipeline, workflow, issue, label, project,
-  mr, release, repo, search, setup
+  pr, mr, release, repo, search, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form,
   --help, -v/-V/--version
@@ -48,6 +48,7 @@ examples:
   glab-axi issue reopen 42
   glab-axi label list
   glab-axi project view
+  glab-axi pr view 42
   glab-axi mr list
   glab-axi mr view 42
   glab-axi release list
@@ -67,6 +68,7 @@ const COMMAND_HELP: Record<string, string> = {
   issue: ISSUE_HELP,
   label: LABEL_HELP,
   project: PROJECT_HELP,
+  pr: MR_HELP,
   mr: MR_HELP,
   release: RELEASE_HELP,
   repo: REPO_HELP,
@@ -100,6 +102,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
       issue: withRepoContext("issue", issueCommand),
       label: withRepoContext("label", labelCommand),
       project: withRepoContext("project", projectCommand),
+      pr: withRepoContext("pr", mrCommand),
       mr: withRepoContext("mr", mrCommand),
       release: withRepoContext("release", releaseCommand),
       repo: withRepoContext("repo", repoCommand),

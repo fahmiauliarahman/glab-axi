@@ -36,11 +36,11 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[13]:");
+    expect(TOP_HELP).toContain("commands[14]:");
     expect(TOP_HELP).toContain(
       "(none)=dashboard, api, ci, pipeline, workflow, issue, label, project,",
     );
-    expect(TOP_HELP).toContain("release, repo, search, setup");
+    expect(TOP_HELP).toContain("pr, mr, release, repo, search, setup");
     expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
@@ -56,6 +56,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi issue reopen 42");
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi project view");
+    expect(TOP_HELP).toContain("glab-axi pr view 42");
     expect(TOP_HELP).toContain("glab-axi mr list");
     expect(TOP_HELP).toContain("glab-axi mr view 42");
     expect(TOP_HELP).toContain("glab-axi release list");
@@ -118,6 +119,7 @@ describe("main CLI", () => {
     expect(options.commands.issue).toBeTypeOf("function");
     expect(options.commands.label).toBeTypeOf("function");
     expect(options.commands.project).toBeTypeOf("function");
+    expect(options.commands.pr).toBeTypeOf("function");
     expect(options.commands.mr).toBeTypeOf("function");
     expect(options.commands.release).toBeTypeOf("function");
     expect(options.commands.repo).toBeTypeOf("function");
@@ -139,6 +141,8 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("project")).toContain(
       "glab-axi project view",
     );
+    expect(options.getCommandHelp("pr")).toContain("glab-axi mr list");
+    expect(options.getCommandHelp("pr")).toContain("glab-axi mr view 42");
     expect(options.getCommandHelp("mr")).toContain("glab-axi mr list");
     expect(options.getCommandHelp("mr")).toContain("glab-axi mr view 42");
     expect(options.getCommandHelp("release")).toContain(
