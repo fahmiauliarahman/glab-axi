@@ -84,6 +84,14 @@ describe("main CLI", () => {
     expect(vi.mocked(runAxiCli).mock.calls[0]?.[0]).not.toHaveProperty("argv");
   });
 
+  it("wires repo command into runtime", async () => {
+    await main();
+
+    const options = vi.mocked(runAxiCli).mock.calls[0]?.[0];
+    expect(options.commands.repo).toBeTypeOf("function");
+    expect(options.getCommandHelp("repo")).toContain("glab-axi repo view");
+  });
+
   it("installs session hooks from the explicit setup command", async () => {
     await main();
 
