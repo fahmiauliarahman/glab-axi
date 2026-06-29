@@ -34,8 +34,8 @@ Use glab-axi whenever a task touches GitLab: listing, filing, or editing issues;
 ## Commands
 
 ```
-commands[14]:
-  (none)=dashboard, api, ci, pipeline, workflow, issue, label, project,
+commands[15]:
+  (none)=dashboard, api, ci, run, pipeline, workflow, issue, label, project,
   pr, mr, release, repo, search, setup
 ```
 
