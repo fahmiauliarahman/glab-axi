@@ -2,4 +2,4 @@
 
 AXI-compliant wrapper around `glab`.
 
-Current slice: CLI shell plus `api`, `ci list/get/status`, `issue list`, `label list`, `mr list`, `project view/search`, `release list`, `repo view`, `search repos`, and `setup hooks`.
+Current slice: CLI shell plus `api`, `ci list/get/status`, `issue list/view`, `label list`, `mr list`, `project view/search`, `release list`, `repo view`, `search repos`, and `setup hooks`.

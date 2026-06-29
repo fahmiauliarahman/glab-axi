@@ -47,6 +47,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi ci list");
     expect(TOP_HELP).toContain("glab-axi ci status");
     expect(TOP_HELP).toContain("glab-axi issue list");
+    expect(TOP_HELP).toContain("glab-axi issue view 42");
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi project view");
     expect(TOP_HELP).toContain("glab-axi mr list");

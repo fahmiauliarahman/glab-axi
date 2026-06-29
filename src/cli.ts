@@ -38,6 +38,7 @@ examples:
   glab-axi ci list
   glab-axi ci status
   glab-axi issue list
+  glab-axi issue view 42
   glab-axi label list
   glab-axi project view
   glab-axi mr list
