@@ -61,6 +61,7 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi mr list");
     expect(TOP_HELP).toContain("glab-axi mr view 42");
     expect(TOP_HELP).toContain("glab-axi release list");
+    expect(TOP_HELP).toContain("glab-axi release create v1.0.1");
     expect(TOP_HELP).toContain("glab-axi repo search --search");
     expect(TOP_HELP).toContain("glab-axi search repos --search");
     expect(TOP_HELP).toContain("glab-axi update --check");
@@ -152,6 +153,9 @@ describe("main CLI", () => {
     expect(options.getCommandHelp("mr")).toContain("glab-axi mr view 42");
     expect(options.getCommandHelp("release")).toContain(
       "glab-axi release list",
+    );
+    expect(options.getCommandHelp("release")).toContain(
+      "glab-axi release create v1.0.1",
     );
     expect(options.getCommandHelp("repo")).toContain("glab-axi repo list");
     expect(options.getCommandHelp("repo")).toContain("glab-axi repo search");

@@ -15,6 +15,7 @@ vi.mock("../src/glab.js", () => ({
 
 import {
   RELEASE_HELP,
+  RELEASE_CREATE_HELP,
   RELEASE_VIEW_HELP,
   releaseCommand,
 } from "../src/release.js";
@@ -68,9 +69,36 @@ describe("releaseCommand", () => {
     );
   });
 
+  it("renders release create output", async () => {
+    glabExec.mockResolvedValueOnce("created\n");
+
+    const output = await releaseCommand(
+      ["create", "v1.2.3", "--notes", "bugfix"],
+      {
+        owner: "group",
+        name: "project",
+        nwo: "group/project",
+        source: "flag",
+      },
+    );
+
+    expect(output).toContain("created");
+    expect(output).toContain("glab-axi release create --help");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["release", "create", "v1.2.3", "--notes", "bugfix"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
   it("returns release view help", async () => {
     await expect(releaseCommand(["view", "--help"])).resolves.toBe(
       RELEASE_VIEW_HELP,
+    );
+  });
+
+  it("returns release create help", async () => {
+    await expect(releaseCommand(["create", "--help"])).resolves.toBe(
+      RELEASE_CREATE_HELP,
     );
   });
 
