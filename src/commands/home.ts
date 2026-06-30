@@ -8,9 +8,10 @@ export async function homeCommand(
   ctx?: RepoContext,
 ): Promise<string> {
   const [project, issues, mrs] = await Promise.all([
-    glabJson<Record<string, unknown>>(["repo", "view", "--output", "json"], ctx).catch(
-      () => undefined,
-    ),
+    glabJson<Record<string, unknown>>(
+      ["repo", "view", "--output", "json"],
+      ctx,
+    ).catch(() => undefined),
     glabJson<unknown[]>(
       ["issue", "list", "--output", "json", "--per-page", "3"],
       ctx,
@@ -38,7 +39,11 @@ export async function homeCommand(
   );
   blocks.push(mrs.length ? `mrs:\n  count: ${mrs.length}` : "mrs:\n  count: 0");
 
-  const help = getSuggestions({ domain: "home", action: "dashboard", repo: ctx });
+  const help = getSuggestions({
+    domain: "home",
+    action: "dashboard",
+    repo: ctx,
+  });
   blocks.push(renderHelp(help));
 
   return renderOutput(blocks);

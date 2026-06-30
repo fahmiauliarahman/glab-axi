@@ -91,9 +91,7 @@ describe("labelCommand", () => {
   });
 
   it("returns label create help when asked", async () => {
-    await expect(labelCommand(["create", "--help"])).resolves.toBe(
-      LABEL_HELP,
-    );
+    await expect(labelCommand(["create", "--help"])).resolves.toBe(LABEL_HELP);
   });
 
   it("rejects unknown subcommands", async () => {

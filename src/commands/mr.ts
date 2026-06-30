@@ -80,7 +80,9 @@ const viewSchema: FieldDef[] = [
   relativeTime("created_at", "created"),
   field("source_branch", "source_branch"),
   field("target_branch", "target_branch"),
-  custom("body", (item: Record<string, unknown>) => truncateBody(item.description, 500)),
+  custom("body", (item: Record<string, unknown>) =>
+    truncateBody(item.description, 500),
+  ),
 ];
 
 const viewSchemaFull: FieldDef[] = viewSchema.map((f) =>
@@ -93,10 +95,19 @@ const viewSchemaFull: FieldDef[] = viewSchema.map((f) =>
 
 const MR_LIST_EXTRA_FIELDS: Record<string, ExtraFieldSpec> = {
   labels: { jsonKey: "labels", def: joinArray("labels", "name", "labels") },
-  milestone: { jsonKey: "milestone", def: pluck("milestone", "title", "milestone") },
-  updated_at: { jsonKey: "updated_at", def: relativeTime("updated_at", "updated_at") },
+  milestone: {
+    jsonKey: "milestone",
+    def: pluck("milestone", "title", "milestone"),
+  },
+  updated_at: {
+    jsonKey: "updated_at",
+    def: relativeTime("updated_at", "updated_at"),
+  },
   web_url: { jsonKey: "web_url", def: field("web_url", "url") },
-  merged_at: { jsonKey: "merged_at", def: relativeTime("merged_at", "merged_at") },
+  merged_at: {
+    jsonKey: "merged_at",
+    def: relativeTime("merged_at", "merged_at"),
+  },
 };
 
 async function listMrs(args: string[], ctx?: RepoContext): Promise<string> {
@@ -110,7 +121,14 @@ async function listMrs(args: string[], ctx?: RepoContext): Promise<string> {
   const limitRaw = getFlag(args, "--limit");
   const limit = limitRaw ? parseInt(limitRaw, 10) : 30;
 
-  const glabArgs = ["mr", "list", "--output", "json", "--per-page", String(limit)];
+  const glabArgs = [
+    "mr",
+    "list",
+    "--output",
+    "json",
+    "--per-page",
+    String(limit),
+  ];
   if (state) glabArgs.push("--state", state);
   if (label) glabArgs.push("--label", label);
   if (assignee) glabArgs.push("--assignee", assignee);
@@ -121,12 +139,22 @@ async function listMrs(args: string[], ctx?: RepoContext): Promise<string> {
   const isEmpty = items.length === 0;
   const countLine = formatCountLine({ count: items.length, limit });
 
-  const extendedSchema = extraDefs.length > 0 ? [...listSchema, ...extraDefs] : listSchema;
-  const help = getSuggestions({ domain: "mr", action: "list", isEmpty, repo: ctx });
+  const extendedSchema =
+    extraDefs.length > 0 ? [...listSchema, ...extraDefs] : listSchema;
+  const help = getSuggestions({
+    domain: "mr",
+    action: "list",
+    isEmpty,
+    repo: ctx,
+  });
 
   return renderOutput([
     countLine,
-    renderList("mrs", items as unknown as Record<string, unknown>[], extendedSchema),
+    renderList(
+      "mrs",
+      items as unknown as Record<string, unknown>[],
+      extendedSchema,
+    ),
     renderHelp(help),
   ]);
 }
@@ -147,20 +175,21 @@ async function viewMr(args: string[], ctx?: RepoContext): Promise<string> {
 
   if (withComments) {
     try {
-      const notes = await glabJson<Array<{ author?: { username: string }; body?: string; created_at?: string }>>(
-        ["mr", "note", "list", String(num), "--output", "json"],
-        ctx,
-      );
+      const notes = await glabJson<
+        Array<{
+          author?: { username: string };
+          body?: string;
+          created_at?: string;
+        }>
+      >(["mr", "note", "list", String(num), "--output", "json"], ctx);
       if (Array.isArray(notes) && notes.length > 0) {
-        blocks.push(renderList(
-          "notes",
-          notes as unknown as Record<string, unknown>[],
-          [
+        blocks.push(
+          renderList("notes", notes as unknown as Record<string, unknown>[], [
             pluck("author", "username", "author"),
             relativeTime("created_at", "created"),
             custom("body", (c) => truncateBody(c.body, 800)),
-          ],
-        ));
+          ]),
+        );
       }
     } catch {
       // notes list may not be available
@@ -168,7 +197,13 @@ async function viewMr(args: string[], ctx?: RepoContext): Promise<string> {
   }
 
   const state = typeof item.state === "string" ? item.state.toLowerCase() : "";
-  const help = getSuggestions({ domain: "mr", action: "view", state, id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "view",
+    state,
+    id: num,
+    repo: ctx,
+  });
   blocks.push(renderHelp(help));
 
   return renderOutput(blocks);
@@ -205,9 +240,19 @@ async function createMr(args: string[], ctx?: RepoContext): Promise<string> {
     ctx,
   );
 
-  const help = getSuggestions({ domain: "mr", action: "create", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "create",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("mr", item, [field("iid", "number"), field("title"), lower("state"), field("web_url", "url")]),
+    renderDetail("mr", item, [
+      field("iid", "number"),
+      field("title"),
+      lower("state"),
+      field("web_url", "url"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -218,7 +263,8 @@ async function updateMr(args: string[], ctx?: RepoContext): Promise<string> {
   const title = getFlag(args, "--title");
   const description = getFlag(args, "--description");
   const addLabel = getFlag(args, "--add-label") ?? getFlag(args, "--label");
-  const removeLabel = getFlag(args, "--remove-label") ?? getFlag(args, "--unlabel");
+  const removeLabel =
+    getFlag(args, "--remove-label") ?? getFlag(args, "--unlabel");
   const assignee = getFlag(args, "--assignee");
   const milestone = getFlag(args, "--milestone");
   const removeSource = hasFlag(args, "--remove-source-branch");
@@ -245,9 +291,18 @@ async function updateMr(args: string[], ctx?: RepoContext): Promise<string> {
     ctx,
   );
 
-  const help = getSuggestions({ domain: "mr", action: "update", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "update",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("mr", item, [field("iid", "number"), field("title"), lower("state")]),
+    renderDetail("mr", item, [
+      field("iid", "number"),
+      field("title"),
+      lower("state"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -260,23 +315,42 @@ async function mergeMr(args: string[], ctx?: RepoContext): Promise<string> {
     ctx,
   );
   if (current.state.toLowerCase() === "merged") {
-    const help = getSuggestions({ domain: "mr", action: "merge", id: num, repo: ctx });
+    const help = getSuggestions({
+      domain: "mr",
+      action: "merge",
+      id: num,
+      repo: ctx,
+    });
     return renderOutput([
-      renderDetail("mr", { iid: num, state: "merged", already: true }, [field("iid", "number"), field("state"), field("already")]),
+      renderDetail("mr", { iid: num, state: "merged", already: true }, [
+        field("iid", "number"),
+        field("state"),
+        field("already"),
+      ]),
       renderHelp(help),
     ]);
   }
 
   const glabArgs = ["mr", "merge", String(num)];
-  if (hasFlag(args, "--merge-when-pipeline-succeeds")) glabArgs.push("--merge-when-pipeline-succeeds");
-  if (hasFlag(args, "--remove-source-branch")) glabArgs.push("--remove-source-branch");
+  if (hasFlag(args, "--merge-when-pipeline-succeeds"))
+    glabArgs.push("--merge-when-pipeline-succeeds");
+  if (hasFlag(args, "--remove-source-branch"))
+    glabArgs.push("--remove-source-branch");
   if (hasFlag(args, "--squash")) glabArgs.push("--squash");
 
   await glabExec(glabArgs, ctx);
 
-  const help = getSuggestions({ domain: "mr", action: "merge", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "merge",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("merged", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("merged", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -290,7 +364,11 @@ async function closeMr(args: string[], ctx?: RepoContext): Promise<string> {
   );
   if (current.state.toLowerCase() === "closed") {
     return renderOutput([
-      renderDetail("mr", { iid: num, state: "closed", already: true }, [field("iid", "number"), field("state"), field("already")]),
+      renderDetail("mr", { iid: num, state: "closed", already: true }, [
+        field("iid", "number"),
+        field("state"),
+        field("already"),
+      ]),
     ]);
   }
 
@@ -324,55 +402,122 @@ async function noteMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
   const message = getFlag(args, "--message") ?? getFlag(args, "-m");
   if (!message) {
-    throw new AxiError("-m/--message is required for MR note", "VALIDATION_ERROR");
+    throw new AxiError(
+      "-m/--message is required for MR note",
+      "VALIDATION_ERROR",
+    );
   }
 
   await glabExec(["mr", "note", String(num), "--message", message], ctx);
 
   return renderOutput([
-    renderDetail("noted", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("noted", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
   ]);
 }
 
 async function approveMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
-  await glabExec(["mr", "approve", String(num), ...args.slice(1).filter((a) => a.startsWith("--"))], ctx);
+  await glabExec(
+    [
+      "mr",
+      "approve",
+      String(num),
+      ...args.slice(1).filter((a) => a.startsWith("--")),
+    ],
+    ctx,
+  );
 
-  const help = getSuggestions({ domain: "mr", action: "approve", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "approve",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("approved", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("approved", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
 
 async function diffMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
-  const diff = await glabExec(["mr", "diff", String(num), ...args.slice(1).filter((a) => a.startsWith("--"))], ctx);
+  const diff = await glabExec(
+    [
+      "mr",
+      "diff",
+      String(num),
+      ...args.slice(1).filter((a) => a.startsWith("--")),
+    ],
+    ctx,
+  );
 
   return renderOutput([
-    renderDetail("mr_diff", { number: num, diff }, [field("number"), field("diff")]),
-    renderHelp(getSuggestions({ domain: "mr", action: "diff", id: num, repo: ctx })),
+    renderDetail("mr_diff", { number: num, diff }, [
+      field("number"),
+      field("diff"),
+    ]),
+    renderHelp(
+      getSuggestions({ domain: "mr", action: "diff", id: num, repo: ctx }),
+    ),
   ]);
 }
 
 async function checkoutMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
-  await glabExec(["mr", "checkout", String(num), ...args.slice(1).filter((a) => a.startsWith("--"))], ctx);
+  await glabExec(
+    [
+      "mr",
+      "checkout",
+      String(num),
+      ...args.slice(1).filter((a) => a.startsWith("--")),
+    ],
+    ctx,
+  );
 
-  const help = getSuggestions({ domain: "mr", action: "checkout", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "checkout",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("checkout", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("checkout", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
 
 async function rebaseMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
-  await glabExec(["mr", "rebase", String(num), ...args.slice(1).filter((a) => a.startsWith("--"))], ctx);
+  await glabExec(
+    [
+      "mr",
+      "rebase",
+      String(num),
+      ...args.slice(1).filter((a) => a.startsWith("--")),
+    ],
+    ctx,
+  );
 
-  const help = getSuggestions({ domain: "mr", action: "rebase", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "rebase",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("rebased", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("rebased", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -381,9 +526,17 @@ async function revokeMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
   await glabExec(["mr", "revoke", String(num)], ctx);
 
-  const help = getSuggestions({ domain: "mr", action: "revoke", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "revoke",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("revoked", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("revoked", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -392,9 +545,17 @@ async function deleteMr(args: string[], ctx?: RepoContext): Promise<string> {
   const num = requireNumber(getPositional(args, 1), "MR");
   await glabExec(["mr", "delete", String(num), "--yes"], ctx);
 
-  const help = getSuggestions({ domain: "mr", action: "delete", id: num, repo: ctx });
+  const help = getSuggestions({
+    domain: "mr",
+    action: "delete",
+    id: num,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("deleted", { number: num, status: "ok" }, [field("number"), field("status")]),
+    renderDetail("deleted", { number: num, status: "ok" }, [
+      field("number"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }

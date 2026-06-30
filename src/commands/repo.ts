@@ -61,7 +61,12 @@ async function listRepos(args: string[], ctx?: RepoContext): Promise<string> {
   const isEmpty = repos.length === 0;
   const limitNum = Number(limit);
   const countLine = formatCountLine({ count: repos.length, limit: limitNum });
-  const help = getSuggestions({ domain: "repo", action: "list", isEmpty, repo: ctx });
+  const help = getSuggestions({
+    domain: "repo",
+    action: "list",
+    isEmpty,
+    repo: ctx,
+  });
 
   return renderOutput([
     countLine,
@@ -88,7 +93,11 @@ async function createRepo(args: string[], ctx?: RepoContext): Promise<string> {
   if (args.includes("--help") || args.includes("-h")) return REPO_HELP;
   const positionals = args.filter((a) => !a.startsWith("--"));
   const name = positionals[1];
-  if (!name) throw new AxiError("Repository name is required: glab-axi repo create <name>", "VALIDATION_ERROR");
+  if (!name)
+    throw new AxiError(
+      "Repository name is required: glab-axi repo create <name>",
+      "VALIDATION_ERROR",
+    );
 
   const glabArgs = ["repo", "create", name];
   const group = getFlag(args, "--group");
@@ -102,7 +111,10 @@ async function createRepo(args: string[], ctx?: RepoContext): Promise<string> {
 
   const help = getSuggestions({ domain: "repo", action: "create", repo: ctx });
   return renderOutput([
-    renderDetail("created", { name: name, output: output.trim() }, [field("name"), field("output")]),
+    renderDetail("created", { name: name, output: output.trim() }, [
+      field("name"),
+      field("output"),
+    ]),
     renderHelp(help),
   ]);
 }

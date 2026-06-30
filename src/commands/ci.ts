@@ -51,7 +51,10 @@ const jobSchema: FieldDef[] = [
   lower("status"),
 ];
 
-async function listPipelines(args: string[], ctx?: RepoContext): Promise<string> {
+async function listPipelines(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const limit = getFlag(args, "--limit") ?? "20";
   const status = getFlag(args, "--status");
 
@@ -62,7 +65,12 @@ async function listPipelines(args: string[], ctx?: RepoContext): Promise<string>
   const isEmpty = items.length === 0;
   const limitNum = Number(limit);
   const countLine = formatCountLine({ count: items.length, limit: limitNum });
-  const help = getSuggestions({ domain: "ci", action: "list", isEmpty, repo: ctx });
+  const help = getSuggestions({
+    domain: "ci",
+    action: "list",
+    isEmpty,
+    repo: ctx,
+  });
 
   return renderOutput([
     countLine,
@@ -77,23 +85,39 @@ async function getPipeline(args: string[], ctx?: RepoContext): Promise<string> {
 
   const help = getSuggestions({ domain: "ci", action: "get", repo: ctx });
   return renderOutput([
-    renderDetail("pipeline", item, [field("id"), field("status"), field("ref", "branch"), field("source"), relativeTime("created_at", "created")]),
+    renderDetail("pipeline", item, [
+      field("id"),
+      field("status"),
+      field("ref", "branch"),
+      field("source"),
+      relativeTime("created_at", "created"),
+    ]),
     renderHelp(help),
   ]);
 }
 
-async function statusPipeline(args: string[], ctx?: RepoContext): Promise<string> {
+async function statusPipeline(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const glabArgs = ["ci", "status", "--output", "json", ...args.slice(1)];
   const item = await glabJson<Record<string, unknown>>(glabArgs, ctx);
 
   const help = getSuggestions({ domain: "ci", action: "status", repo: ctx });
   const blocks: string[] = [
-    renderDetail("pipeline", item, [field("id"), field("status"), field("ref", "branch"), relativeTime("created_at", "created")]),
+    renderDetail("pipeline", item, [
+      field("id"),
+      field("status"),
+      field("ref", "branch"),
+      relativeTime("created_at", "created"),
+    ]),
   ];
 
   // Show jobs if available
   if (Array.isArray(item.jobs) && (item.jobs as unknown[]).length > 0) {
-    blocks.push(renderList("jobs", item.jobs as Record<string, unknown>[], jobSchema));
+    blocks.push(
+      renderList("jobs", item.jobs as Record<string, unknown>[], jobSchema),
+    );
   }
 
   blocks.push(renderHelp(help));
@@ -104,10 +128,7 @@ async function runPipeline(args: string[], ctx?: RepoContext): Promise<string> {
   await glabExec(["ci", "run", ...args.slice(1)], ctx);
 
   const help = getSuggestions({ domain: "ci", action: "run", repo: ctx });
-  return renderOutput([
-    encode({ pipeline_run: "ok" }),
-    renderHelp(help),
-  ]);
+  return renderOutput([encode({ pipeline_run: "ok" }), renderHelp(help)]);
 }
 
 async function traceJob(args: string[], ctx?: RepoContext): Promise<string> {

@@ -48,7 +48,10 @@ const viewSchema: FieldDef[] = [
   relativeTime("released_at", "released"),
 ];
 
-async function listReleases(args: string[], ctx?: RepoContext): Promise<string> {
+async function listReleases(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const limit = getFlag(args, "--limit") ?? "30";
 
   const releases = await glabJson<Record<string, unknown>[]>(
@@ -57,8 +60,16 @@ async function listReleases(args: string[], ctx?: RepoContext): Promise<string> 
   );
   const isEmpty = releases.length === 0;
   const limitNum = Number(limit);
-  const countLine = formatCountLine({ count: releases.length, limit: limitNum });
-  const help = getSuggestions({ domain: "release", action: "list", isEmpty, repo: ctx });
+  const countLine = formatCountLine({
+    count: releases.length,
+    limit: limitNum,
+  });
+  const help = getSuggestions({
+    domain: "release",
+    action: "list",
+    isEmpty,
+    repo: ctx,
+  });
 
   return renderOutput([
     countLine,
@@ -70,25 +81,41 @@ async function listReleases(args: string[], ctx?: RepoContext): Promise<string> 
 async function viewRelease(args: string[], ctx?: RepoContext): Promise<string> {
   if (args.includes("--help") || args.includes("-h")) return RELEASE_HELP;
   const tag = args[1];
-  if (!tag) throw new AxiError("Release tag is required: glab-axi release view <tag>", "VALIDATION_ERROR");
+  if (!tag)
+    throw new AxiError(
+      "Release tag is required: glab-axi release view <tag>",
+      "VALIDATION_ERROR",
+    );
 
   const item = await glabJson<Record<string, unknown>>(
     ["release", "view", tag, "--output", "json"],
     ctx,
   );
 
-  const help = getSuggestions({ domain: "release", action: "view", id: tag, repo: ctx });
+  const help = getSuggestions({
+    domain: "release",
+    action: "view",
+    id: tag,
+    repo: ctx,
+  });
   return renderOutput([
     renderDetail("release", item, viewSchema),
     renderHelp(help),
   ]);
 }
 
-async function createRelease(args: string[], ctx?: RepoContext): Promise<string> {
+async function createRelease(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   if (args.includes("--help") || args.includes("-h")) return RELEASE_HELP;
   const positionals = args.filter((a) => !a.startsWith("--"));
   const tag = positionals[1];
-  if (!tag) throw new AxiError("Release tag is required: glab-axi release create <tag>", "VALIDATION_ERROR");
+  if (!tag)
+    throw new AxiError(
+      "Release tag is required: glab-axi release create <tag>",
+      "VALIDATION_ERROR",
+    );
 
   const body = takeBody(args, {
     inlineFlags: ["--notes"],
@@ -104,53 +131,106 @@ async function createRelease(args: string[], ctx?: RepoContext): Promise<string>
 
   await glabExec(glabArgs, ctx);
 
-  const help = getSuggestions({ domain: "release", action: "create", id: tag, repo: ctx });
+  const help = getSuggestions({
+    domain: "release",
+    action: "create",
+    id: tag,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("release", { tag, status: "created" }, [field("tag"), field("status")]),
+    renderDetail("release", { tag, status: "created" }, [
+      field("tag"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
 
-async function deleteRelease(args: string[], ctx?: RepoContext): Promise<string> {
+async function deleteRelease(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const positionals = args.filter((a) => !a.startsWith("--"));
   const tag = positionals[1];
-  if (!tag) throw new AxiError("Release tag is required: glab-axi release delete <tag>", "VALIDATION_ERROR");
+  if (!tag)
+    throw new AxiError(
+      "Release tag is required: glab-axi release delete <tag>",
+      "VALIDATION_ERROR",
+    );
 
   await glabExec(["release", "delete", tag, "--yes"], ctx);
 
   return renderOutput([
-    renderDetail("release", { tag, status: "deleted" }, [field("tag"), field("status")]),
+    renderDetail("release", { tag, status: "deleted" }, [
+      field("tag"),
+      field("status"),
+    ]),
   ]);
 }
 
-async function downloadRelease(args: string[], ctx?: RepoContext): Promise<string> {
+async function downloadRelease(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   if (args.includes("--help") || args.includes("-h")) return RELEASE_HELP;
   const positionals = args.filter((a) => !a.startsWith("--"));
   const tag = positionals[1];
-  if (!tag) throw new AxiError("Release tag is required: glab-axi release download <tag>", "VALIDATION_ERROR");
+  if (!tag)
+    throw new AxiError(
+      "Release tag is required: glab-axi release download <tag>",
+      "VALIDATION_ERROR",
+    );
 
-  const glabArgs = ["release", "download", tag, ...args.slice(1).filter((a) => a.startsWith("--"))];
+  const glabArgs = [
+    "release",
+    "download",
+    tag,
+    ...args.slice(1).filter((a) => a.startsWith("--")),
+  ];
   await glabExec(glabArgs, ctx);
 
-  const help = getSuggestions({ domain: "release", action: "download", id: tag, repo: ctx });
+  const help = getSuggestions({
+    domain: "release",
+    action: "download",
+    id: tag,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("downloaded", { tag, status: "ok" }, [field("tag"), field("status")]),
+    renderDetail("downloaded", { tag, status: "ok" }, [
+      field("tag"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
 
-async function uploadRelease(args: string[], ctx?: RepoContext): Promise<string> {
+async function uploadRelease(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   if (args.includes("--help") || args.includes("-h")) return RELEASE_HELP;
   const positionals = args.filter((a) => !a.startsWith("--"));
   const tag = positionals[1];
-  if (!tag) throw new AxiError("Release tag is required: glab-axi release upload <tag>", "VALIDATION_ERROR");
+  if (!tag)
+    throw new AxiError(
+      "Release tag is required: glab-axi release upload <tag>",
+      "VALIDATION_ERROR",
+    );
 
   const glabArgs = ["release", "upload", tag, ...args.slice(2)];
   await glabExec(glabArgs, ctx);
 
-  const help = getSuggestions({ domain: "release", action: "upload", id: tag, repo: ctx });
+  const help = getSuggestions({
+    domain: "release",
+    action: "upload",
+    id: tag,
+    repo: ctx,
+  });
   return renderOutput([
-    renderDetail("uploaded", { tag, status: "ok" }, [field("tag"), field("status")]),
+    renderDetail("uploaded", { tag, status: "ok" }, [
+      field("tag"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }

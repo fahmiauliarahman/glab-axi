@@ -39,7 +39,8 @@ const table: SuggestionEntry[] = [
     ],
   },
   {
-    match: (c) => c.domain === "issue" && c.action === "list" && c.isEmpty === true,
+    match: (c) =>
+      c.domain === "issue" && c.action === "list" && c.isEmpty === true,
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} issue create --title "..."\` to create an issue`,
       `Run \`glab-axi${repoFlag(c)} issue list --state closed\` to see closed issues`,
@@ -48,7 +49,8 @@ const table: SuggestionEntry[] = [
 
   // Issue view
   {
-    match: (c) => c.domain === "issue" && c.action === "view" && c.state === "opened",
+    match: (c) =>
+      c.domain === "issue" && c.action === "view" && c.state === "opened",
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} issue note ${c.id} -m "..."\` to comment`,
       `Run \`glab-axi${repoFlag(c)} issue close ${c.id}\` to close`,
@@ -56,7 +58,8 @@ const table: SuggestionEntry[] = [
     ],
   },
   {
-    match: (c) => c.domain === "issue" && c.action === "view" && c.state === "closed",
+    match: (c) =>
+      c.domain === "issue" && c.action === "view" && c.state === "closed",
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} issue reopen ${c.id}\` to reopen`,
       `Run \`glab-axi${repoFlag(c)} issue note ${c.id} -m "..."\` to comment`,
@@ -91,7 +94,8 @@ const table: SuggestionEntry[] = [
 
   // Issue note/comment
   {
-    match: (c) => c.domain === "issue" && (c.action === "note" || c.action === "comment"),
+    match: (c) =>
+      c.domain === "issue" && (c.action === "note" || c.action === "comment"),
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} issue view ${c.id} --comments\` to see all notes`,
     ],
@@ -115,7 +119,8 @@ const table: SuggestionEntry[] = [
 
   // Issue subscribe/unsubscribe
   {
-    match: (c) => c.domain === "issue" && ["subscribe", "unsubscribe"].includes(c.action),
+    match: (c) =>
+      c.domain === "issue" && ["subscribe", "unsubscribe"].includes(c.action),
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} issue view ${c.id}\` to see issue details`,
     ],
@@ -130,7 +135,8 @@ const table: SuggestionEntry[] = [
     ],
   },
   {
-    match: (c) => c.domain === "mr" && c.action === "list" && c.isEmpty === true,
+    match: (c) =>
+      c.domain === "mr" && c.action === "list" && c.isEmpty === true,
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} mr create --title "..."\` to create an MR`,
       `Run \`glab-axi${repoFlag(c)} mr list --state closed\` to see closed MRs`,
@@ -139,18 +145,23 @@ const table: SuggestionEntry[] = [
 
   // MR view
   {
-    match: (c) => c.domain === "mr" && c.action === "view" && c.state === "opened",
+    match: (c) =>
+      c.domain === "mr" && c.action === "view" && c.state === "opened",
     lines: (c) => [
       `Run \`glab-axi${repoFlag(c)} ci status\` to see pipeline status`,
       `Run \`glab-axi${repoFlag(c)} mr merge ${c.id}\` to merge`,
     ],
   },
   {
-    match: (c) => c.domain === "mr" && c.action === "view" && c.state === "closed",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr reopen ${c.id}\` to reopen`],
+    match: (c) =>
+      c.domain === "mr" && c.action === "view" && c.state === "closed",
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr reopen ${c.id}\` to reopen`,
+    ],
   },
   {
-    match: (c) => c.domain === "mr" && c.action === "view" && c.state === "merged",
+    match: (c) =>
+      c.domain === "mr" && c.action === "view" && c.state === "merged",
     lines: () => [],
   },
 
@@ -166,7 +177,9 @@ const table: SuggestionEntry[] = [
   // MR update
   {
     match: (c) => c.domain === "mr" && c.action === "update",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr view ${c.id}\` to see updated MR`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr view ${c.id}\` to see updated MR`,
+    ],
   },
 
   // MR merge
@@ -187,25 +200,33 @@ const table: SuggestionEntry[] = [
   // MR diff
   {
     match: (c) => c.domain === "mr" && c.action === "diff",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr approve ${c.id}\` to approve`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr approve ${c.id}\` to approve`,
+    ],
   },
 
   // MR rebase
   {
     match: (c) => c.domain === "mr" && c.action === "rebase",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr view ${c.id}\` to see updated MR`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr view ${c.id}\` to see updated MR`,
+    ],
   },
 
   // MR revoke
   {
     match: (c) => c.domain === "mr" && c.action === "revoke",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr approve ${c.id}\` to re-approve`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr approve ${c.id}\` to re-approve`,
+    ],
   },
 
   // MR delete
   {
     match: (c) => c.domain === "mr" && c.action === "delete",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} mr list\` to see remaining MRs`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} mr list\` to see remaining MRs`,
+    ],
   },
 
   // CI list
@@ -292,13 +313,17 @@ const table: SuggestionEntry[] = [
   // Label create
   {
     match: (c) => c.domain === "label" && c.action === "create",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} label list\` to see all labels`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} label list\` to see all labels`,
+    ],
   },
 
   // Label edit
   {
     match: (c) => c.domain === "label" && c.action === "edit",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} label list\` to see all labels`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} label list\` to see all labels`,
+    ],
   },
 
   // Release download/upload
@@ -308,7 +333,9 @@ const table: SuggestionEntry[] = [
   },
   {
     match: (c) => c.domain === "release" && c.action === "upload",
-    lines: (c) => [`Run \`glab-axi${repoFlag(c)} release view ${c.id}\` to see all assets`],
+    lines: (c) => [
+      `Run \`glab-axi${repoFlag(c)} release view ${c.id}\` to see all assets`,
+    ],
   },
 
   // Search

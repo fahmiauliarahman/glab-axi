@@ -19,9 +19,14 @@ export function parseFields(
     return { extraDefs: [], extraJsonKeys: [] };
   }
 
-  const requested = [...new Set(
-    fieldsArg.split(",").map((f) => f.trim()).filter(Boolean),
-  )];
+  const requested = [
+    ...new Set(
+      fieldsArg
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
+    ),
+  ];
 
   const unknown = requested.filter((f) => !(f in available));
   if (unknown.length > 0) {

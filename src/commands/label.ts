@@ -41,7 +41,12 @@ async function listLabels(args: string[], ctx?: RepoContext): Promise<string> {
     ctx,
   );
   const isEmpty = labels.length === 0;
-  const help = getSuggestions({ domain: "label", action: "list", isEmpty, repo: ctx });
+  const help = getSuggestions({
+    domain: "label",
+    action: "list",
+    isEmpty,
+    repo: ctx,
+  });
 
   return renderOutput([
     formatCountLine({ count: labels.length }),
@@ -65,7 +70,11 @@ async function createLabel(args: string[], ctx?: RepoContext): Promise<string> {
 
   const help = getSuggestions({ domain: "label", action: "create", repo: ctx });
   return renderOutput([
-    renderDetail("label", { name, color, status: "created" }, [field("name"), field("color"), field("status")]),
+    renderDetail("label", { name, color, status: "created" }, [
+      field("name"),
+      field("color"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -89,7 +98,10 @@ async function editLabel(args: string[], ctx?: RepoContext): Promise<string> {
 
   const help = getSuggestions({ domain: "label", action: "edit", repo: ctx });
   return renderOutput([
-    renderDetail("label", { name, status: "edited" }, [field("name"), field("status")]),
+    renderDetail("label", { name, status: "edited" }, [
+      field("name"),
+      field("status"),
+    ]),
     renderHelp(help),
   ]);
 }
@@ -101,7 +113,10 @@ async function deleteLabel(args: string[], ctx?: RepoContext): Promise<string> {
   await glabExec(["label", "delete", name, "--yes"], ctx);
 
   return renderOutput([
-    renderDetail("label", { name, status: "deleted" }, [field("name"), field("status")]),
+    renderDetail("label", { name, status: "deleted" }, [
+      field("name"),
+      field("status"),
+    ]),
   ]);
 }
 

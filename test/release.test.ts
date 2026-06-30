@@ -127,11 +127,15 @@ describe("releaseCommand", () => {
   });
 
   it("returns release download help", async () => {
-    await expect(releaseCommand(["download", "--help"])).resolves.toBe(RELEASE_HELP);
+    await expect(releaseCommand(["download", "--help"])).resolves.toBe(
+      RELEASE_HELP,
+    );
   });
 
   it("returns release upload help", async () => {
-    await expect(releaseCommand(["upload", "--help"])).resolves.toBe(RELEASE_HELP);
+    await expect(releaseCommand(["upload", "--help"])).resolves.toBe(
+      RELEASE_HELP,
+    );
   });
 
   it("returns release create help", async () => {
