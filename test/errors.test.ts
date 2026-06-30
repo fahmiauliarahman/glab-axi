@@ -34,6 +34,16 @@ describe("mapGlabError", () => {
     expect(err.code).toBe("AUTH_REQUIRED");
   });
 
+  it("maps missing GitLab remote to repo hint", () => {
+    const err = mapGlabError(
+      "\n  ERROR  \n\nNone of the git remotes configured for this repository point to a known GitLab host.\nConfigured remotes: github.com.\n",
+      1,
+    );
+
+    expect(err.code).toBe("VALIDATION_ERROR");
+    expect(err.message).toContain("pass `--repo owner/name`");
+  });
+
   it("maps validation errors", () => {
     const err = mapGlabError('HTTP 422 {"message": "Validation Failed"}', 1);
 

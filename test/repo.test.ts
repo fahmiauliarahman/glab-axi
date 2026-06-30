@@ -144,7 +144,7 @@ describe("repoCommand", () => {
         source: "flag",
       });
 
-    expect(output).toContain("repos[");
+      expect(output).toContain("repos[");
       expect(output).toContain("group/project");
       expect(glabJson).toHaveBeenCalledWith(
         ["repo", "search", "--output", "json", "--search", "cli tool"],

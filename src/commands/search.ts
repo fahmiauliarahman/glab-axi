@@ -50,17 +50,33 @@ async function searchRepos(args: string[], ctx?: RepoContext): Promise<string> {
   ]);
 }
 
-async function searchIssues(args: string[], ctx?: RepoContext): Promise<string> {
+async function searchIssues(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<string> {
   const query = getFlag(args, "--search") ?? getFlag(args, "-s");
   if (!query) throw new AxiError("--search is required", "VALIDATION_ERROR");
 
   const issues = await glabJson<Record<string, unknown>[]>(
-    ["issue", "list", "--output", "json", "--search", query, "--per-page", "30"],
+    [
+      "issue",
+      "list",
+      "--output",
+      "json",
+      "--search",
+      query,
+      "--per-page",
+      "30",
+    ],
     ctx,
   );
 
   const countLine = formatCountLine({ count: issues.length });
-  const help = getSuggestions({ domain: "search", action: "issues", repo: ctx });
+  const help = getSuggestions({
+    domain: "search",
+    action: "issues",
+    repo: ctx,
+  });
 
   return renderOutput([
     countLine,

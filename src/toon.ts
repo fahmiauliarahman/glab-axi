@@ -3,10 +3,22 @@ import { encode } from "@toon-format/toon";
 export type FieldDef =
   | { type: "field"; key: string; as?: string }
   | { type: "pluck"; key: string; subkey: string; as?: string }
-  | { type: "joinArray"; key: string; subkey: string; as?: string; empty?: string }
+  | {
+      type: "joinArray";
+      key: string;
+      subkey: string;
+      as?: string;
+      empty?: string;
+    }
   | { type: "relativeTime"; key: string; as?: string }
   | { type: "boolYesNo"; key: string; as?: string }
-  | { type: "mapEnum"; key: string; map: Record<string, string>; fallback?: string; as?: string }
+  | {
+      type: "mapEnum";
+      key: string;
+      map: Record<string, string>;
+      fallback?: string;
+      as?: string;
+    }
   | { type: "lower"; key: string; as?: string }
   | { type: "checksSummary"; key: string; as?: string }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,7 +30,12 @@ export function field(key: string, as?: string): FieldDef {
 export function pluck(key: string, subkey: string, as?: string): FieldDef {
   return { type: "pluck", key, subkey, as };
 }
-export function joinArray(key: string, subkey: string, as?: string, empty = "none"): FieldDef {
+export function joinArray(
+  key: string,
+  subkey: string,
+  as?: string,
+  empty = "none",
+): FieldDef {
   return { type: "joinArray", key, subkey, as, empty };
 }
 export function relativeTime(key: string, as?: string): FieldDef {
@@ -27,7 +44,12 @@ export function relativeTime(key: string, as?: string): FieldDef {
 export function boolYesNo(key: string, as?: string): FieldDef {
   return { type: "boolYesNo", key, as };
 }
-export function mapEnum(key: string, map: Record<string, string>, fallback?: string, as?: string): FieldDef {
+export function mapEnum(
+  key: string,
+  map: Record<string, string>,
+  fallback?: string,
+  as?: string,
+): FieldDef {
   return { type: "mapEnum", key, map, fallback, as };
 }
 export function lower(key: string, as?: string): FieldDef {
@@ -42,7 +64,10 @@ export function custom(as: string, fn: (item: any) => any): FieldDef {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function extract(item: Record<string, any>, schema: FieldDef[]): Record<string, unknown> {
+export function extract(
+  item: Record<string, any>,
+  schema: FieldDef[],
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const def of schema) {
     const outputKey = def.as ?? ("key" in def ? def.key : def.as);
@@ -51,19 +76,30 @@ export function extract(item: Record<string, any>, schema: FieldDef[]): Record<s
         result[outputKey] = item[def.key] ?? null;
         break;
       case "pluck":
-        result[outputKey] = (item[def.key] as Record<string, unknown> | undefined)?.[def.subkey] ?? null;
+        result[outputKey] =
+          (item[def.key] as Record<string, unknown> | undefined)?.[
+            def.subkey
+          ] ?? null;
         break;
       case "joinArray": {
         const arr = item[def.key];
         if (Array.isArray(arr) && arr.length > 0) {
-          result[outputKey] = arr.map((x: unknown) => (typeof x === "string" ? x : (x as Record<string, unknown>)[def.subkey])).join(",");
+          result[outputKey] = arr
+            .map((x: unknown) =>
+              typeof x === "string"
+                ? x
+                : (x as Record<string, unknown>)[def.subkey],
+            )
+            .join(",");
         } else {
           result[outputKey] = def.empty ?? "none";
         }
         break;
       }
       case "relativeTime":
-        result[outputKey] = formatRelativeTime(item[def.key] as string | null | undefined);
+        result[outputKey] = formatRelativeTime(
+          item[def.key] as string | null | undefined,
+        );
         break;
       case "boolYesNo":
         result[outputKey] = item[def.key] ? "yes" : "no";
@@ -78,12 +114,18 @@ export function extract(item: Record<string, any>, schema: FieldDef[]): Record<s
         break;
       }
       case "lower":
-        result[outputKey] = typeof item[def.key] === "string" ? (item[def.key] as string).toLowerCase() : item[def.key];
+        result[outputKey] =
+          typeof item[def.key] === "string"
+            ? (item[def.key] as string).toLowerCase()
+            : item[def.key];
         break;
       case "checksSummary": {
         const checks = item[def.key];
         if (Array.isArray(checks) && checks.length > 0) {
-          const passed = checks.filter((c: Record<string, unknown>) => c.conclusion === "SUCCESS" || c.conclusion === "NEUTRAL").length;
+          const passed = checks.filter(
+            (c: Record<string, unknown>) =>
+              c.conclusion === "SUCCESS" || c.conclusion === "NEUTRAL",
+          ).length;
           result[outputKey] = `${passed}/${checks.length} pass`;
         } else {
           result[outputKey] = "none";
@@ -95,7 +137,9 @@ export function extract(item: Record<string, any>, schema: FieldDef[]): Record<s
         break;
       default: {
         const _exhaustive: never = def;
-        throw new Error(`Unknown field type: ${(_exhaustive as FieldDef).type}`);
+        throw new Error(
+          `Unknown field type: ${(_exhaustive as FieldDef).type}`,
+        );
       }
     }
   }
@@ -103,13 +147,21 @@ export function extract(item: Record<string, any>, schema: FieldDef[]): Record<s
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function renderList(label: string, items: Record<string, any>[], schema: FieldDef[]): string {
+export function renderList(
+  label: string,
+  items: Record<string, any>[],
+  schema: FieldDef[],
+): string {
   const extracted = items.map((item) => extract(item, schema));
   return encode({ [label]: extracted });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function renderDetail(label: string, item: Record<string, any>, schema: FieldDef[]): string {
+export function renderDetail(
+  label: string,
+  item: Record<string, any>,
+  schema: FieldDef[],
+): string {
   const extracted = extract(item, schema);
   return encode({ [label]: extracted });
 }
@@ -120,7 +172,11 @@ export function renderHelp(lines: string[]): string {
   return `help[${lines.length}]:\n${indented}`;
 }
 
-export function renderError(message: string, code: string, suggestions: string[] = []): string {
+export function renderError(
+  message: string,
+  code: string,
+  suggestions: string[] = [],
+): string {
   const blocks = [encode({ error: message, code })];
   if (suggestions.length > 0) {
     blocks.push(renderHelp(suggestions));

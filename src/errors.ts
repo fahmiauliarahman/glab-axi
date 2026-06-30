@@ -51,7 +51,20 @@ const patterns: ErrorPattern[] = [
     pattern: /release with tag "([^"]+)" not found/i,
     code: "NOT_FOUND",
     message: (m) => `Release "${m[1]}" not found`,
-    suggestions: () => ["Run `glab-axi release list` to see available releases"],
+    suggestions: () => [
+      "Run `glab-axi release list` to see available releases",
+    ],
+  },
+  {
+    pattern:
+      /None of the git remotes configured for this repository point to a known GitLab host/i,
+    code: "VALIDATION_ERROR",
+    message: () =>
+      "GitLab repo not detected for current checkout - pass `--repo owner/name` or set `GLAB_REPO`",
+    suggestions: () => [
+      "Run `glab-axi issue list --repo owner/name`",
+      "Set `GLAB_REPO=owner/name` when working outside GitLab clone",
+    ],
   },
   {
     pattern: /glab auth login/i,
@@ -79,7 +92,12 @@ const patterns: ErrorPattern[] = [
 ];
 
 function firstErrorLine(stderr: string): string {
-  return stderr.trim().split("\n")[0] ?? "";
+  return (
+    stderr
+      .split("\n")
+      .map((line) => line.trim())
+      .find((line) => line.length > 0) ?? ""
+  );
 }
 
 export function mapGlabError(stderr: string, exitCode: number): AxiError {

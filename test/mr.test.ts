@@ -122,7 +122,11 @@ describe("mrCommand", () => {
 
   it("renders merge request update structured output", async () => {
     glabExec.mockResolvedValueOnce("");
-    glabJson.mockResolvedValueOnce({ iid: 7, title: "Updated MR", state: "opened" });
+    glabJson.mockResolvedValueOnce({
+      iid: 7,
+      title: "Updated MR",
+      state: "opened",
+    });
 
     const output = await mrCommand(["update", "7", "--add-label", "bug"], {
       owner: "group",
