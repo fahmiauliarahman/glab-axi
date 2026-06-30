@@ -13,19 +13,7 @@ vi.mock("../src/glab.js", () => ({
   glabExec,
 }));
 
-import {
-  ISSUE_CLOSE_HELP,
-  ISSUE_DELETE_HELP,
-  issueCommand,
-  ISSUE_CREATE_HELP,
-  ISSUE_HELP,
-  ISSUE_NOTE_HELP,
-  ISSUE_REOPEN_HELP,
-  ISSUE_SUBSCRIBE_HELP,
-  ISSUE_UPDATE_HELP,
-  ISSUE_UNSUBSCRIBE_HELP,
-  ISSUE_VIEW_HELP,
-} from "../src/issue.js";
+import { issueCommand, ISSUE_HELP } from "../src/commands/issue.js";
 
 describe("issueCommand", () => {
   beforeEach(() => {
@@ -50,10 +38,10 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("issues:");
+    expect(output).toContain("issues[");
     expect(output).toContain("Fix login");
     expect(glabJson).toHaveBeenCalledWith(
-      ["issue", "list", "--output", "json"],
+      ["issue", "list", "--output", "json", "--per-page", "30"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
@@ -76,8 +64,16 @@ describe("issueCommand", () => {
     );
   });
 
-  it("renders issue create passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Created issue #43");
+  it("renders issue create structured output", async () => {
+    glabExec.mockResolvedValueOnce(
+      "https://gitlab.com/group/project/-/issues/42",
+    );
+    glabJson.mockResolvedValueOnce({
+      iid: 42,
+      title: "Fix login",
+      state: "opened",
+      web_url: "https://gitlab.com/group/project/-/issues/42",
+    });
 
     const output = await issueCommand(["create", "--title", "Fix login"], {
       owner: "group",
@@ -86,16 +82,16 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Created issue #43");
-    expect(output).toContain("Use `glab-axi issue create --help`");
+    expect(output).toContain("Fix login");
+    expect(output).toContain("state: opened");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "create", "--title", "Fix login"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue note passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Created note on issue #42");
+  it("renders issue note structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
 
     const output = await issueCommand(
       ["note", "42", "--message", "closing because !123 was merged"],
@@ -107,8 +103,7 @@ describe("issueCommand", () => {
       },
     );
 
-    expect(output).toContain("Created note on issue #42");
-    expect(output).toContain("Use `glab-axi issue note --help`");
+    expect(output).toContain("status: ok");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "note", "42", "--message", "closing because !123 was merged"],
       expect.objectContaining({ nwo: "group/project" }),
@@ -116,7 +111,7 @@ describe("issueCommand", () => {
   });
 
   it("treats issue comment as note", async () => {
-    glabExec.mockResolvedValueOnce("Created note on issue #42");
+    glabExec.mockResolvedValueOnce("");
 
     const output = await issueCommand(
       ["comment", "42", "--message", "closing because !123 was merged"],
@@ -128,16 +123,21 @@ describe("issueCommand", () => {
       },
     );
 
-    expect(output).toContain("Created note on issue #42");
-    expect(output).toContain("Use `glab-axi issue note --help`");
+    expect(output).toContain("status: ok");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "note", "42", "--message", "closing because !123 was merged"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue update passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Updated issue #42");
+  it("renders issue update structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
+    glabJson.mockResolvedValueOnce({
+      iid: 42,
+      title: "Updated",
+      state: "opened",
+      labels: [],
+    });
 
     const output = await issueCommand(["update", "42", "--label", "bug"], {
       owner: "group",
@@ -146,16 +146,17 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Updated issue #42");
-    expect(output).toContain("Use `glab-axi issue update --help`");
+    expect(output).toContain("title: Updated");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "update", "42", "--label", "bug"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue close passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Closed issue #42");
+  it("renders issue close structured output", async () => {
+    glabJson.mockResolvedValueOnce({ state: "opened" });
+    glabExec.mockResolvedValueOnce("");
+    glabJson.mockResolvedValueOnce({ iid: 42, state: "closed" });
 
     const output = await issueCommand(["close", "42"], {
       owner: "group",
@@ -164,16 +165,15 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Closed issue #42");
-    expect(output).toContain("Use `glab-axi issue close --help`");
+    expect(output).toContain("state: closed");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "close", "42"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue delete passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Deleted issue #42");
+  it("renders issue delete structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
 
     const output = await issueCommand(["delete", "42"], {
       owner: "group",
@@ -182,16 +182,17 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Deleted issue #42");
-    expect(output).toContain("Use `glab-axi issue delete --help`");
+    expect(output).toContain("status: deleted");
     expect(glabExec).toHaveBeenCalledWith(
-      ["issue", "delete", "42"],
+      ["issue", "delete", "42", "--yes"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue reopen passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Reopened issue #42");
+  it("renders issue reopen structured output", async () => {
+    glabJson.mockResolvedValueOnce({ state: "closed" });
+    glabExec.mockResolvedValueOnce("");
+    glabJson.mockResolvedValueOnce({ iid: 42, state: "opened" });
 
     const output = await issueCommand(["reopen", "42"], {
       owner: "group",
@@ -200,8 +201,7 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Reopened issue #42");
-    expect(output).toContain("Use `glab-axi issue reopen --help`");
+    expect(output).toContain("state: opened");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "reopen", "42"],
       expect.objectContaining({ nwo: "group/project" }),
@@ -209,61 +209,49 @@ describe("issueCommand", () => {
   });
 
   it("returns issue view help when asked", async () => {
-    await expect(issueCommand(["view", "--help"])).resolves.toBe(
-      ISSUE_VIEW_HELP,
-    );
+    await expect(issueCommand(["view", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue create help when asked", async () => {
-    await expect(issueCommand(["create", "--help"])).resolves.toBe(
-      ISSUE_CREATE_HELP,
-    );
+    await expect(issueCommand(["create", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue note help when asked", async () => {
-    await expect(issueCommand(["note", "--help"])).resolves.toBe(
-      ISSUE_NOTE_HELP,
-    );
+    await expect(issueCommand(["note", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue update help when asked", async () => {
-    await expect(issueCommand(["update", "--help"])).resolves.toBe(
-      ISSUE_UPDATE_HELP,
-    );
+    await expect(issueCommand(["update", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue close help when asked", async () => {
-    await expect(issueCommand(["close", "--help"])).resolves.toBe(
-      ISSUE_CLOSE_HELP,
-    );
+    await expect(issueCommand(["close", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue delete help when asked", async () => {
-    await expect(issueCommand(["delete", "--help"])).resolves.toBe(
-      ISSUE_DELETE_HELP,
-    );
+    await expect(issueCommand(["delete", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue reopen help when asked", async () => {
-    await expect(issueCommand(["reopen", "--help"])).resolves.toBe(
-      ISSUE_REOPEN_HELP,
-    );
+    await expect(issueCommand(["reopen", "--help"])).resolves.toBe(ISSUE_HELP);
   });
 
   it("returns issue subscribe help when asked", async () => {
     await expect(issueCommand(["subscribe", "--help"])).resolves.toBe(
-      ISSUE_SUBSCRIBE_HELP,
+      ISSUE_HELP,
     );
   });
 
   it("returns issue unsubscribe help when asked", async () => {
     await expect(issueCommand(["unsubscribe", "--help"])).resolves.toBe(
-      ISSUE_UNSUBSCRIBE_HELP,
+      ISSUE_HELP,
     );
   });
 
   it("treats issue open as reopen", async () => {
-    glabExec.mockResolvedValueOnce("Reopened issue #42");
+    glabJson.mockResolvedValueOnce({ state: "closed" });
+    glabExec.mockResolvedValueOnce("");
+    glabJson.mockResolvedValueOnce({ iid: 42, state: "opened" });
 
     const output = await issueCommand(["open", "42"], {
       owner: "group",
@@ -272,16 +260,15 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Reopened issue #42");
-    expect(output).toContain("Use `glab-axi issue reopen --help`");
+    expect(output).toContain("state: opened");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "reopen", "42"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue subscribe passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Subscribed to issue #42");
+  it("renders issue subscribe structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
 
     const output = await issueCommand(["subscribe", "42"], {
       owner: "group",
@@ -290,16 +277,15 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Subscribed to issue #42");
-    expect(output).toContain("Use `glab-axi issue subscribe --help`");
+    expect(output).toContain("status: subscribed");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "subscribe", "42"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
-  it("renders issue unsubscribe passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Unsubscribed from issue #42");
+  it("renders issue unsubscribe structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
 
     const output = await issueCommand(["unsubscribe", "42"], {
       owner: "group",
@@ -308,8 +294,7 @@ describe("issueCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("Unsubscribed from issue #42");
-    expect(output).toContain("Use `glab-axi issue unsubscribe --help`");
+    expect(output).toContain("status: unsubscribed");
     expect(glabExec).toHaveBeenCalledWith(
       ["issue", "unsubscribe", "42"],
       expect.objectContaining({ nwo: "group/project" }),
@@ -317,8 +302,8 @@ describe("issueCommand", () => {
   });
 
   it("rejects unknown subcommands", async () => {
-    await expect(issueCommand(["unknown"])).rejects.toThrow(
-      "Unknown issue subcommand",
+    await expect(issueCommand(["unknown"])).resolves.toContain(
+      'error: "Unknown issue subcommand',
     );
   });
 });

@@ -8,7 +8,7 @@ vi.mock("../src/glab.js", () => ({
   glabExec,
 }));
 
-import { apiCommand, API_HELP } from "../src/api.js";
+import { apiCommand, API_HELP } from "../src/commands/api.js";
 
 describe("apiCommand", () => {
   beforeEach(() => {

@@ -13,14 +13,7 @@ vi.mock("../src/glab.js", () => ({
   glabExec,
 }));
 
-import {
-  repoCommand,
-  REPO_HELP,
-  REPO_CREATE_HELP,
-  REPO_LIST_HELP,
-  REPO_SEARCH_HELP,
-  REPO_VIEW_HELP,
-} from "../src/repo.js";
+import { repoCommand, REPO_HELP } from "../src/commands/repo.js";
 
 describe("repoCommand", () => {
   beforeEach(() => {
@@ -36,24 +29,22 @@ describe("repoCommand", () => {
   });
 
   it("returns list help on demand", async () => {
-    await expect(repoCommand(["list", "--help"])).resolves.toBe(REPO_LIST_HELP);
+    await expect(repoCommand(["list", "--help"])).resolves.toBe(REPO_HELP);
   });
 
   it("returns view help on demand", async () => {
-    await expect(repoCommand(["view", "--help"])).resolves.toBe(REPO_VIEW_HELP);
+    await expect(repoCommand(["view", "--help"])).resolves.toBe(REPO_HELP);
   });
 
   it("returns create help on demand", async () => {
-    await expect(repoCommand(["create", "--help"])).resolves.toBe(
-      REPO_CREATE_HELP,
-    );
+    await expect(repoCommand(["create", "--help"])).resolves.toBe(REPO_HELP);
   });
 
   it.each(["search", "find", "lookup"])(
     "returns %s help on demand",
     async (subcommand) => {
       await expect(repoCommand([subcommand, "--help"])).resolves.toBe(
-        REPO_SEARCH_HELP,
+        REPO_HELP,
       );
     },
   );
@@ -72,9 +63,9 @@ describe("repoCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("project: group/project");
-    expect(output).toContain('web: "https://gitlab.com/group/project"');
-    expect(output).toContain("description: Project summary");
+    expect(output).toContain("name: group/project");
+    expect(output).toContain("https://gitlab.com/group/project");
+    expect(output).toContain("Project summary");
     expect(glabJson).toHaveBeenCalledWith(
       ["repo", "view", "--output", "json"],
       expect.objectContaining({ nwo: "group/project" }),
@@ -100,12 +91,11 @@ describe("repoCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("repos:");
+    expect(output).toContain("repos[");
     expect(output).toContain("group/project-1");
     expect(output).toContain("group/project-2");
-    expect(output).toContain("Use `glab-axi repo list --help`");
     expect(glabJson).toHaveBeenCalledWith(
-      ["repo", "list", "--output", "json"],
+      ["repo", "list", "--output", "json", "--per-page", "30"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
@@ -124,7 +114,6 @@ describe("repoCommand", () => {
     );
 
     expect(output).toContain("created project");
-    expect(output).toContain("glab-axi repo create --help");
     expect(glabExec).toHaveBeenCalledWith(
       ["repo", "create", "my-project", "--visibility", "public"],
       expect.objectContaining({ nwo: "group/project" }),
@@ -132,8 +121,8 @@ describe("repoCommand", () => {
   });
 
   it("rejects unknown subcommands", async () => {
-    await expect(repoCommand(["unknown"])).rejects.toThrow(
-      "Unknown repo subcommand",
+    await expect(repoCommand(["unknown"])).resolves.toContain(
+      'error: "Unknown subcommand',
     );
   });
 
@@ -155,7 +144,7 @@ describe("repoCommand", () => {
         source: "flag",
       });
 
-      expect(output).toContain("repos:");
+    expect(output).toContain("repos[");
       expect(output).toContain("group/project");
       expect(glabJson).toHaveBeenCalledWith(
         ["repo", "search", "--output", "json", "--search", "cli tool"],

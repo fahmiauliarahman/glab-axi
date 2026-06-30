@@ -1,4 +1,4 @@
-import { AxiError } from "axi-sdk-js";
+import { AxiError, exitCodeForError } from "axi-sdk-js";
 
 export type ErrorCode =
   | "REPO_NOT_FOUND"
@@ -10,40 +10,48 @@ export type ErrorCode =
   | "GLAB_NOT_INSTALLED"
   | "UNKNOWN";
 
-type ErrorPattern = {
+export { AxiError, exitCodeForError };
+
+interface ErrorPattern {
   pattern: RegExp;
   code: ErrorCode;
   message: (match: RegExpMatchArray, stderr: string) => string;
   suggestions?: (match: RegExpMatchArray) => string[];
-};
+}
 
 const patterns: ErrorPattern[] = [
   {
     pattern: /Could not resolve to a Project with the name '([^']+)'/,
     code: "REPO_NOT_FOUND",
-    message: (match) => `Project "${match[1]}" not found`,
-    suggestions: () => ["Run `glab repo list` to see available projects"],
+    message: (m) => `Project "${m[1]}" not found`,
+    suggestions: () => ["Run `glab-axi repo list` to see available projects"],
   },
   {
     pattern: /project (\d+) not found/i,
     code: "NOT_FOUND",
-    message: (match) => `Project #${match[1]} does not exist`,
+    message: (m) => `Project #${m[1]} does not exist`,
   },
   {
     pattern: /issue (\d+) not found/i,
     code: "NOT_FOUND",
-    message: (match) => `Issue #${match[1]} does not exist`,
+    message: (m) => `Issue #${m[1]} does not exist`,
   },
   {
     pattern: /merge request (\d+) not found/i,
     code: "NOT_FOUND",
-    message: (match) => `Merge request #${match[1]} does not exist`,
+    message: (m) => `Merge request #${m[1]} does not exist`,
+  },
+  {
+    pattern: /pipeline (\d+) not found/i,
+    code: "NOT_FOUND",
+    message: (m) => `Pipeline #${m[1]} not found`,
+    suggestions: () => ["Run `glab-axi ci list` to see recent pipelines"],
   },
   {
     pattern: /release with tag "([^"]+)" not found/i,
     code: "NOT_FOUND",
-    message: (match) => `Release "${match[1]}" not found`,
-    suggestions: () => ["Run `glab release list` to see available releases"],
+    message: (m) => `Release "${m[1]}" not found`,
+    suggestions: () => ["Run `glab-axi release list` to see available releases"],
   },
   {
     pattern: /glab auth login/i,
@@ -63,9 +71,9 @@ const patterns: ErrorPattern[] = [
   {
     pattern: /HTTP 422/,
     code: "VALIDATION_ERROR",
-    message: (_match, stderr) => {
-      const messageMatch = stderr.match(/"message"\s*:\s*"([^"]+)"/);
-      return messageMatch ? messageMatch[1] : "Validation error";
+    message: (_m, stderr) => {
+      const msgMatch = stderr.match(/"message"\s*:\s*"([^"]+)"/);
+      return msgMatch ? msgMatch[1] : "Validation error";
     },
   },
 ];

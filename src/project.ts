@@ -1,7 +1,7 @@
-import { AxiError } from "axi-sdk-js";
+import { AxiError } from "./errors.js";
 import type { RepoContext } from "./context.js";
-import { repoCommand } from "./repo.js";
-import { searchCommand } from "./search.js";
+import { repoCommand } from "./commands/repo.js";
+import { searchCommand } from "./commands/search.js";
 
 export const PROJECT_HELP = `usage: glab-axi project <subcommand> [flags]
 subcommands[4]:
@@ -11,12 +11,10 @@ aliases:
   project search -> search repos
   project find -> search repos
   project lookup -> search repos
-
 examples:
   glab-axi project view
   glab-axi project search --search "cli tool"
-  glab-axi project find --search "cli tool"
-`;
+  glab-axi project find --search "cli tool"`;
 
 export async function projectCommand(
   args: string[],

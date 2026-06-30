@@ -13,7 +13,7 @@ vi.mock("../src/glab.js", () => ({
   glabExec,
 }));
 
-import { LABEL_CREATE_HELP, LABEL_HELP, labelCommand } from "../src/label.js";
+import { LABEL_HELP, labelCommand } from "../src/commands/label.js";
 
 describe("labelCommand", () => {
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe("labelCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("labels:");
+    expect(output).toContain("labels[");
     expect(output).toContain("priority:high");
     expect(glabJson).toHaveBeenCalledWith(
       ["label", "list", "--output", "json"],
@@ -46,8 +46,8 @@ describe("labelCommand", () => {
     );
   });
 
-  it("renders label create passthrough output", async () => {
-    glabExec.mockResolvedValueOnce("Created label bug");
+  it("renders label create structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
 
     const output = await labelCommand(
       ["create", "--name", "bug", "--color", "#FF0000"],
@@ -59,23 +59,46 @@ describe("labelCommand", () => {
       },
     );
 
-    expect(output).toContain("Created label bug");
-    expect(output).toContain("Use `glab-axi label create --help`");
+    expect(output).toContain("status: created");
     expect(glabExec).toHaveBeenCalledWith(
-      ["label", "create", "--name", "bug", "--color", "#FF0000"],
+      ["label", "create", "bug", "--color", "#FF0000"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
 
+  it("renders label edit structured output", async () => {
+    glabExec.mockResolvedValueOnce("");
+
+    const output = await labelCommand(
+      ["edit", "--name", "bug", "--color", "#00FF00"],
+      {
+        owner: "group",
+        name: "project",
+        nwo: "group/project",
+        source: "flag",
+      },
+    );
+
+    expect(output).toContain("status: edited");
+    expect(glabExec).toHaveBeenCalledWith(
+      ["label", "edit", "bug", "--color", "#00FF00"],
+      expect.objectContaining({ nwo: "group/project" }),
+    );
+  });
+
+  it("returns label edit help when asked", async () => {
+    await expect(labelCommand(["edit", "--help"])).resolves.toBe(LABEL_HELP);
+  });
+
   it("returns label create help when asked", async () => {
     await expect(labelCommand(["create", "--help"])).resolves.toBe(
-      LABEL_CREATE_HELP,
+      LABEL_HELP,
     );
   });
 
   it("rejects unknown subcommands", async () => {
-    await expect(labelCommand(["unknown"])).rejects.toThrow(
-      "Unknown label subcommand",
+    await expect(labelCommand(["unknown"])).resolves.toContain(
+      'error: "Unknown subcommand',
     );
   });
 });

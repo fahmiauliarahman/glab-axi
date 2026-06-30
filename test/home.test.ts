@@ -8,7 +8,7 @@ vi.mock("../src/glab.js", () => ({
   glabJson,
 }));
 
-import { homeCommand } from "../src/home.js";
+import { homeCommand } from "../src/commands/home.js";
 
 describe("homeCommand", () => {
   beforeEach(() => {

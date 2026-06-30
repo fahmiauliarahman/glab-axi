@@ -5,12 +5,12 @@ const { repoCommand, searchCommand } = vi.hoisted(() => ({
   searchCommand: vi.fn(),
 }));
 
-vi.mock("../src/repo.js", () => ({
+vi.mock("../src/commands/repo.js", () => ({
   REPO_HELP: "repo help",
   repoCommand,
 }));
 
-vi.mock("../src/search.js", () => ({
+vi.mock("../src/commands/search.js", () => ({
   SEARCH_HELP: "search help",
   searchCommand,
 }));

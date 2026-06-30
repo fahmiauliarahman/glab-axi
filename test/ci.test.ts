@@ -10,7 +10,7 @@ vi.mock("../src/glab.js", () => ({
   glabJson,
 }));
 
-import { ciCommand, CI_HELP } from "../src/ci.js";
+import { ciCommand, CI_HELP } from "../src/commands/ci.js";
 
 describe("ciCommand", () => {
   beforeEach(() => {
@@ -35,10 +35,10 @@ describe("ciCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("pipelines:");
+    expect(output).toContain("pipelines[");
     expect(output).toContain("success");
     expect(glabJson).toHaveBeenCalledWith(
-      ["ci", "list", "--output", "json"],
+      ["ci", "list", "--output", "json", "--per-page", "20"],
       expect.objectContaining({ nwo: "group/project" }),
     );
   });
@@ -158,8 +158,8 @@ describe("ciCommand", () => {
   });
 
   it("rejects unknown subcommands", async () => {
-    await expect(ciCommand(["unknown"])).rejects.toThrow(
-      "Unknown ci subcommand",
+    await expect(ciCommand(["unknown"])).resolves.toContain(
+      'error: "Unknown ci subcommand',
     );
   });
 });

@@ -8,7 +8,7 @@ vi.mock("../src/glab.js", () => ({
   glabJson,
 }));
 
-import { searchCommand, SEARCH_HELP } from "../src/search.js";
+import { searchCommand, SEARCH_HELP } from "../src/commands/search.js";
 
 describe("searchCommand", () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe("searchCommand", () => {
       source: "flag",
     });
 
-    expect(output).toContain("repos:");
+    expect(output).toContain("repos[");
     expect(output).toContain("group/project");
     expect(glabJson).toHaveBeenCalledWith(
       ["repo", "search", "--output", "json", "--search", "cli tool"],
@@ -48,8 +48,8 @@ describe("searchCommand", () => {
   });
 
   it("rejects unknown subcommands", async () => {
-    await expect(searchCommand(["unknown"])).rejects.toThrow(
-      "Unknown search subcommand",
+    await expect(searchCommand(["unknown"])).resolves.toContain(
+      'error: "Unknown search type',
     );
   });
 });

@@ -34,9 +34,9 @@ Use glab-axi whenever a task touches GitLab: listing, filing, or editing issues;
 ## Commands
 
 ```
-commands[15]:
-  (none)=dashboard, api, ci, run, pipeline, workflow, issue, label, project,
-  pr, mr, release, repo, search, setup
+commands[14]:
+  (none)=dashboard, issue, mr, pr, ci, run, pipeline, workflow, release,
+  repo, label, project, search, api, setup
 ```
 
 Installed copies also inherit the SDK built-in `update` command.

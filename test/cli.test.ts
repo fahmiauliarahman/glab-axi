@@ -36,11 +36,11 @@ describe("main CLI", () => {
   });
 
   it("documents the top-level version flags in help output", () => {
-    expect(TOP_HELP).toContain("commands[15]:");
+    expect(TOP_HELP).toContain("commands[14]:");
     expect(TOP_HELP).toContain(
-      "(none)=dashboard, api, ci, run, pipeline, workflow, issue, label, project,",
+      "(none)=dashboard, issue, mr, pr, ci, run, pipeline, workflow, release,",
     );
-    expect(TOP_HELP).toContain("pr, mr, release, repo, search, setup");
+    expect(TOP_HELP).toContain("repo, label, project, search, api, setup");
     expect(TOP_HELP).toContain("flags[4]:");
     expect(TOP_HELP).toContain("--help");
     expect(TOP_HELP).toContain("-v/-V/--version");
@@ -48,16 +48,12 @@ describe("main CLI", () => {
     expect(TOP_HELP).toContain("glab-axi ci list");
     expect(TOP_HELP).toContain("glab-axi ci status");
     expect(TOP_HELP).toContain("glab-axi ci run");
-    expect(TOP_HELP).toContain("glab-axi run list");
     expect(TOP_HELP).toContain("glab-axi ci trace 224356863");
-    expect(TOP_HELP).toContain("glab-axi pipeline run");
-    expect(TOP_HELP).toContain("glab-axi workflow list");
     expect(TOP_HELP).toContain("glab-axi issue list");
     expect(TOP_HELP).toContain("glab-axi issue view 42");
     expect(TOP_HELP).toContain("glab-axi issue reopen 42");
     expect(TOP_HELP).toContain("glab-axi label list");
     expect(TOP_HELP).toContain("glab-axi project view");
-    expect(TOP_HELP).toContain("glab-axi pr view 42");
     expect(TOP_HELP).toContain("glab-axi mr list");
     expect(TOP_HELP).toContain("glab-axi mr view 42");
     expect(TOP_HELP).toContain("glab-axi release list");

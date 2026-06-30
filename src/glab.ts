@@ -1,7 +1,12 @@
 import { execFile } from "node:child_process";
 import type { RepoContext } from "./context.js";
-import { AxiError } from "axi-sdk-js";
-import { glabNotInstalledError, mapGlabError } from "./errors.js";
+import { AxiError, glabNotInstalledError, mapGlabError } from "./errors.js";
+
+export interface ExecResult {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+}
 
 const MAX_BUFFER_BYTES = 10 * 1024 * 1024;
 
@@ -13,9 +18,7 @@ function buildArgs(args: string[], ctx?: RepoContext): string[] {
   return out;
 }
 
-function run(
-  args: string[],
-): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+function run(args: string[]): Promise<ExecResult> {
   return new Promise((resolve) => {
     execFile(
       "glab",
@@ -44,13 +47,15 @@ export async function glabJson<T = unknown>(
   args: string[],
   ctx?: RepoContext,
 ): Promise<T> {
-  const stdout = await glabExec(args, ctx);
+  const result = await run(buildArgs(args, ctx));
+  if (result.stderr === "ENOENT") throw glabNotInstalledError();
+  if (result.exitCode !== 0) throw mapGlabError(result.stderr, result.exitCode);
 
   try {
-    return JSON.parse(stdout);
+    return JSON.parse(result.stdout);
   } catch {
     throw new AxiError(
-      `Unexpected glab output: ${stdout.slice(0, 200)}`,
+      `Unexpected glab output: ${result.stdout.slice(0, 200)}`,
       "UNKNOWN",
     );
   }
@@ -61,12 +66,17 @@ export async function glabExec(
   ctx?: RepoContext,
 ): Promise<string> {
   const result = await run(buildArgs(args, ctx));
-  if (result.stderr === "ENOENT") {
-    throw glabNotInstalledError();
-  }
-  if (result.exitCode !== 0) {
-    throw mapGlabError(result.stderr, result.exitCode);
-  }
+  if (result.stderr === "ENOENT") throw glabNotInstalledError();
+  if (result.exitCode !== 0) throw mapGlabError(result.stderr, result.exitCode);
 
   return result.stdout;
+}
+
+export async function glabRaw(
+  args: string[],
+  ctx?: RepoContext,
+): Promise<ExecResult> {
+  const result = await run(buildArgs(args, ctx));
+  if (result.stderr === "ENOENT") throw glabNotInstalledError();
+  return result;
 }

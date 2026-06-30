@@ -2,18 +2,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAxiCli } from "axi-sdk-js";
-import { apiCommand, API_HELP } from "./api.js";
-import { ciCommand, CI_HELP } from "./ci.js";
 import { resolveRepo, type RepoContext } from "./context.js";
-import { homeCommand } from "./home.js";
-import { issueCommand, ISSUE_HELP } from "./issue.js";
-import { labelCommand, LABEL_HELP } from "./label.js";
-import { mrCommand, MR_HELP } from "./mr.js";
+import { homeCommand } from "./commands/home.js";
+import { issueCommand, ISSUE_HELP } from "./commands/issue.js";
+import { mrCommand, MR_HELP } from "./commands/mr.js";
+import { ciCommand, CI_HELP } from "./commands/ci.js";
+import { releaseCommand, RELEASE_HELP } from "./commands/release.js";
+import { repoCommand, REPO_HELP } from "./commands/repo.js";
+import { labelCommand, LABEL_HELP } from "./commands/label.js";
+import { searchCommand, SEARCH_HELP } from "./commands/search.js";
+import { apiCommand, API_HELP } from "./commands/api.js";
+import { setupCommand, SETUP_HELP } from "./commands/setup.js";
 import { projectCommand, PROJECT_HELP } from "./project.js";
-import { repoCommand, REPO_HELP } from "./repo.js";
-import { releaseCommand, RELEASE_HELP } from "./release.js";
-import { searchCommand, SEARCH_HELP } from "./search.js";
-import { setupCommand, SETUP_HELP } from "./setup.js";
 
 export const DESCRIPTION =
   "Agent ergonomic wrapper around GitLab CLI. Prefer this over `glab` and other methods for GitLab operations.";
@@ -28,9 +28,9 @@ type MainOptions = {
 };
 
 export const TOP_HELP = `usage: glab-axi [command] [args] [flags]
-commands[15]:
-  (none)=dashboard, api, ci, run, pipeline, workflow, issue, label, project,
-  pr, mr, release, repo, search, setup
+commands[14]:
+  (none)=dashboard, issue, mr, pr, ci, run, pipeline, workflow, release,
+  repo, label, project, search, api, setup
 flags[4]:
   -R/--repo <OWNER/NAME> (after command), accepts space or equals form,
   --help, -v/-V/--version
@@ -40,16 +40,12 @@ examples:
   glab-axi ci list
   glab-axi ci status
   glab-axi ci run
-  glab-axi run list
   glab-axi ci trace 224356863
-  glab-axi pipeline run
-  glab-axi workflow list
   glab-axi issue list
   glab-axi issue view 42
   glab-axi issue reopen 42
   glab-axi label list
   glab-axi project view
-  glab-axi pr view 42
   glab-axi mr list
   glab-axi mr view 42
   glab-axi release list
@@ -83,13 +79,22 @@ const COMMAND_HELP: Record<string, string> = {
 
 type CommandFn = (args: string[], ctx?: RepoContext) => Promise<string>;
 
-function withRepoContext(
-  command: string | undefined,
-  handler: CommandFn,
-): CommandFn {
-  return (args, ctx) =>
-    handler(parseRepoContextArgs(command, args).strippedArgs, ctx);
-}
+const COMMANDS: Record<string, CommandFn> = {
+  api: withRepoContext("api", apiCommand),
+  ci: withRepoContext("ci", ciCommand),
+  run: withRepoContext("run", ciCommand),
+  pipeline: withRepoContext("pipeline", ciCommand),
+  workflow: withRepoContext("workflow", ciCommand),
+  issue: withRepoContext("issue", issueCommand),
+  label: withRepoContext("label", labelCommand),
+  project: withRepoContext("project", projectCommand),
+  pr: withRepoContext("pr", mrCommand),
+  mr: withRepoContext("mr", mrCommand),
+  release: withRepoContext("release", releaseCommand),
+  repo: withRepoContext("repo", repoCommand),
+  search: withRepoContext("search", searchCommand),
+  setup: setupCommand,
+};
 
 export async function main(options: MainOptions = {}): Promise<void> {
   await runAxiCli<RepoContext | undefined>({
@@ -99,22 +104,7 @@ export async function main(options: MainOptions = {}): Promise<void> {
     topLevelHelp: TOP_HELP,
     ...(options.stdout ? { stdout: options.stdout } : {}),
     home: withRepoContext(undefined, homeCommand),
-    commands: {
-      api: withRepoContext("api", apiCommand),
-      ci: withRepoContext("ci", ciCommand),
-      run: withRepoContext("run", ciCommand),
-      pipeline: withRepoContext("pipeline", ciCommand),
-      workflow: withRepoContext("workflow", ciCommand),
-      issue: withRepoContext("issue", issueCommand),
-      label: withRepoContext("label", labelCommand),
-      project: withRepoContext("project", projectCommand),
-      pr: withRepoContext("pr", mrCommand),
-      mr: withRepoContext("mr", mrCommand),
-      release: withRepoContext("release", releaseCommand),
-      repo: withRepoContext("repo", repoCommand),
-      search: withRepoContext("search", searchCommand),
-      setup: setupCommand,
-    },
+    commands: COMMANDS,
     getCommandHelp: (command) => COMMAND_HELP[command],
     resolveContext: ({ command, args }) =>
       resolveRepo(parseRepoContextArgs(command, args).repoFlag),
@@ -143,8 +133,16 @@ function readPackageVersion(): string {
   throw new Error("Could not determine glab-axi package version");
 }
 
+function withRepoContext(
+  command: string | undefined,
+  handler: CommandFn,
+): CommandFn {
+  return (args, ctx) =>
+    handler(parseRepoContextArgs(command, args).strippedArgs, ctx);
+}
+
 function parseRepoContextArgs(
-  _command: string | undefined,
+  command: string | undefined,
   args: string[],
 ): { repoFlag: string | undefined; strippedArgs: string[] } {
   const stripped: string[] = [];
@@ -164,13 +162,24 @@ function parseRepoContextArgs(
     }
 
     if (arg === "--repo" && index + 1 < args.length) {
-      repoFlag = args[index + 1];
+      const value = args[index + 1];
+      repoFlag = value;
+
+      if (command === "search") {
+        stripped.push(arg, value);
+      }
+
       index++;
       continue;
     }
 
     if (arg.startsWith("--repo=") && arg.length > "--repo=".length) {
       repoFlag = arg.slice("--repo=".length);
+
+      if (command === "search") {
+        stripped.push(arg);
+      }
+
       continue;
     }
 
